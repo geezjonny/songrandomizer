@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Song Randomizer 🎵</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  body {
+    background: linear-gradient(135deg, #4a90e2, #50e3c2);
+    font-family: 'Poppins', sans-serif;
+    margin: 0; padding: 0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    align-items: center;
+    color: #222;
+  }
+  main {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    max-width: 400px;
+    width: 90vw;
+    padding: 2rem;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #34495e;
+  }
+  label {
+    display: block;
+    margin: 1rem 0 0.3rem 0;
+    font-weight: 600;
+  }
+  select, input[type=number], input[type=text], textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 2px solid #50e3c2;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  select:focus, input[type=number]:focus, input[type=text]:focus, textarea:focus {
+    border-color: #4a90e2;
+    outline: none;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+  button {
+    margin-top: 1.5rem;
+    width: 100%;
+    background: #4a90e2;
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.9rem;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: #357ABD;
+  }
+  #result {
+    margin-top: 2rem;
+    background: #f0faff;
+    padding: 1rem;
+    border-radius: 12px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    color: #2c3e50;
+  }
+  .flex-row {
+    display: flex;
+    gap: 1rem;
+  }
+  .flex-row > div {
+    flex: 1;
+  }
+</style>
+</head>
+<body>
+  <main>
+    <h1>🎵 Song Randomizer 🎵</h1>
+    <form id="songForm" onsubmit="return false;">
+      <div class="flex-row">
+        <div>
+          <label for="tempo">Tempo (BPM)</label>
+          <input type="number" id="tempo" name="tempo" min="40" max="240" value="120" />
+        </div>
+        <div>
+          <label for="timeSignature">Time Signature</label>
+          <select id="timeSignature" name="timeSignature">
+            <option>4/4</option>
+            <option>3/4</option>
+            <option>6/8</option>
+            <option>7/8</option>
+            <option>5/4</option>
+          </select>
+        </div>
+      </div>
+      <label for="key">Key</label>
+      <select id="key" name="key">
+        <option>C</option><option>C#/Db</option><option>D</option><option>D#/Eb</option><option>E</option><option>F</option>
+        <option>F#/Gb</option><option>G</option><option>G#/Ab</option><option>A</option><option>A#/Bb</option><option>B</option>
+      </select>
+
+      <label for="instrument">First Instrument</label>
+      <select id="instrument" name="instrument">
+        <option>Guitar</option>
+        <option>Piano</option>
+        <option>Drums</option>
+        <option>Bass</option>
+        <option>Synth</option>
+        <option>Violin</option>
+        <option>Trumpet</option>
+        <option>Flute</option>
+        <option>Cello</option>
+        <option>Vocals</option>
+      </select>
+
+      <label for="mood">Mood / Emotion</label>
+      <select id="mood" name="mood">
+        <option>Happy</option>
+        <option>Sad</option>
+        <option>Energetic</option>
+        <option>Chill</option>
+        <option>Dark</option>
+        <option>Romantic</option>
+        <option>Hopeful</option>
+        <option>Mysterious</option>
+      </select>
+
+      <label for="genre">Genre</label>
+      <select id="genre" name="genre">
+        <option>Pop</option>
+        <option>Rock</option>
+        <option>Jazz</option>
+        <option>Blues</option>
+        <option>EDM</option>
+        <option>Country</option>
+        <option>Hip-Hop</option>
+        <option>Folk</option>
+        <option>Reggae</option>
+      </select>
+
+      <label for="chordProgression">Chord Progression Starter</label>
+      <select id="chordProgression" name="chordProgression">
+        <option>I - IV - V</option>
+        <option>ii - V - I</option>
+        <option>vi - IV - I - V</option>
+        <option>I - V - vi - IV</option>
+        <option>I - vi - IV - V</option>
+        <option>12-bar blues</option>
+      </select>
+
+      <label for="songStructure">Song Structure</label>
+      <select id="songStructure" name="songStructure">
+        <option>Verse - Chorus - Verse - Chorus</option>
+        <option>Verse - Chorus - Bridge - Chorus</option>
+        <option>AABA</option>
+        <option>Verse - Pre-Chorus - Chorus</option>
+        <option>Intro - Verse - Chorus - Outro</option>
+      </select>
+
+      <label for="lyricsPrompt">Lyrics Prompt (optional)</label>
+      <input type="text" id="lyricsPrompt" name="lyricsPrompt" placeholder="e.g. love, journey, night..." />
+
+      <button id="randomizeBtn">🎲 Randomize All</button>
+      <button id="copyBtn" style="background:#50e3c2; margin-top: 0.5rem;">📋 Copy Song Idea</button>
+
+    </form>
+
+    <pre id="result"></pre>
+  </main>
+
+  <script>
+    const tempoInput = document.getElementById('tempo');
+    const timeSigSelect = document.getElementById('timeSignature');
+    const keySelect = document.getElementById('key');
+    const instrumentSelect = document.getElementById('instrument');
+    const moodSelect = document.getElementById('mood');
+    const genreSelect = document.getElementById('genre');
+    const chordSelect = document.getElementById('chordProgression');
+    const structureSelect = document.getElementById('songStructure');
+    const lyricsInput = document.getElementById('lyricsPrompt');
+    const resultPre = document.getElementById('result');
+    const randomizeBtn = document.getElementById('randomizeBtn');
+    const copyBtn = document.getElementById('copyBtn');
+
+    const moods = ['Happy', 'Sad', 'Energetic', 'Chill', 'Dark', 'Romantic', 'Hopeful', 'Mysterious'];
+    const genres = ['Pop', 'Rock', 'Jazz', 'Blues', 'EDM', 'Country', 'Hip-Hop', 'Folk', 'Reggae'];
+    const keys = ['C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B'];
+    const instruments = ['Guitar', 'Piano', 'Drums', 'Bass', 'Synth', 'Violin', 'Trumpet', 'Flute', 'Cello', 'Vocals'];
+    const timeSignatures = ['4/4', '3/4', '6/8', '7/8', '5/4'];
+    const chordProgressions = ['I - IV - V', 'ii - V - I', 'vi - IV - I - V', 'I - V - vi - IV', 'I - vi - IV - V', '12-bar blues'];
+    const songStructures = ['Verse - Chorus - Verse - Chorus', 'Verse - Chorus - Bridge - Chorus', 'AABA', 'Verse - Pre-Chorus - Chorus', 'Intro - Verse - Chorus - Outro'];
+    const lyricsPrompts = ['love', 'journey', 'night', 'dreams', 'freedom', 'heartbreak', 'hope', 'fire', 'water', 'sky'];
+
+    function randomFromArray(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function randomTempo() {
+      return Math.floor(Math.random() * (180 - 60 + 1)) + 60; // 60 to 180 bpm
+    }
+
+    function generateSongIdea() {
+      return `🎼 Your Song Idea 🎼
+
+Tempo: ${tempoInput.value} BPM
+Time Signature: ${timeSigSelect.value}
+Key: ${keySelect.value}
+First Instrument: ${instrumentSelect.value}
+Mood / Emotion: ${moodSelect.value}
+Genre: ${genreSelect.value}
+Chord Progression Starter: ${chordSelect.value}
+Song Structure: ${structureSelect.value}
+Lyrics Prompt: ${lyricsInput.value.trim() || '[No prompt given]'}
+
+Happy songwriting! 🎶
+`;
+    }
+
+    function randomizeAll() {
+      tempoInput.value = randomTempo();
+      timeSigSelect.value = randomFromArray(timeSignatures);
+      keySelect.value = randomFromArray(keys);
+      instrumentSelect.value = randomFromArray(instruments);
+      moodSelect.value = randomFromArray(moods);
+      genreSelect.value = randomFromArray(genres);
+      chordSelect.value = randomFromArray(chordProgressions);
+      structureSelect.value = randomFromArray(songStructures);
+      lyricsInput.value = randomFromArray(lyricsPrompts);
+      resultPre.textContent = generateSongIdea();
+    }
+
+    randomizeBtn.onclick = () => {
+      randomizeAll();
+    };
+
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(resultPre.textContent).then(() => {
+        alert('Song idea copied to clipboard!');
+      });
+    };
+
+    // Generate initial idea on load
+    window.onload = () => {
+      resultPre.textContent = generateSongIdea();
+    };
+
+    // Update result when inputs change
+    document.getElementById('songForm').addEventListener('input', () => {
+      resultPre.textContent = generateSongIdea();
+    });
+  </script>
+</body>
+</html>
