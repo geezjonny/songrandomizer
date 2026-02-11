@@ -1,0 +1,620 @@
+<!-- File: index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>D&D Session Tracker</title>
+  <style>
+    :root { color-scheme: dark light; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 18px; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    h2 { font-size: 16px; margin: 20px 0 10px; }
+    .card { border: 1px solid rgba(127,127,127,.35); border-radius: 12px; padding: 14px; background: rgba(127,127,127,.06); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    label { display: block; font-size: 12px; opacity: .85; margin-bottom: 6px; }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%; box-sizing: border-box; padding: 10px; border-radius: 10px;
+      border: 1px solid rgba(127,127,127,.35); background: transparent;
+      font-size: 14px;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    .btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    button {
+      padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(127,127,127,.35);
+      background: rgba(127,127,127,.10); cursor: pointer; font-weight: 600;
+    }
+    button:hover { background: rgba(127,127,127,.18); }
+    .muted { opacity: .8; font-size: 12px; }
+    .hidden { display: none; }
+    .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    .pill { font-size: 12px; padding: 4px 8px; border-radius: 999px; border: 1px solid rgba(127,127,127,.35); opacity: .9; }
+    .hpBox { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
+    .hpRead { font-size: 28px; font-weight: 800; letter-spacing: .2px; }
+    .hpRead small { font-size: 14px; opacity: .8; font-weight: 700; }
+    .hpControls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+    .slotGroup { border: 1px dashed rgba(127,127,127,.35); border-radius: 12px; padding: 10px; }
+    .slotTitle { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .checks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .check {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid rgba(127,127,127,.35); border-radius: 999px;
+      padding: 6px 10px; user-select: none;
+    }
+    .footer { margin-top: 14px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>D&D Session Tracker</h1>
+      <div id="statusPill" class="pill">Not loaded</div>
+    </div>
+
+    <!-- SETUP -->
+    <section id="setup" class="card hidden">
+      <h2>Setup</h2>
+      <div class="row">
+        <div>
+          <label for="setupName">Character name (used as save key)</label>
+          <input id="setupName" type="text" autocomplete="nickname" placeholder="e.g., Thalia" />
+          <div class="muted">Tip: share a link like <span class="mono">...?name=Thalia</span> to load directly.</div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="setupLevel">Level</label>
+            <input id="setupLevel" type="number" min="1" max="20" value="1" />
+          </div>
+          <div>
+            <label for="setupMaxHp">Max HP</label>
+            <input id="setupMaxHp" type="number" min="1" value="10" />
+          </div>
+        </div>
+      </div>
+
+      <h2>Spell slots (how many total at each level)</h2>
+      <div class="row3" id="setupSlots"></div>
+
+      <div class="btns">
+        <button id="btnCreate">Create / Load</button>
+        <button id="btnSetupLoadExisting" title="Loads if the name already exists">Load Existing by Name</button>
+      </div>
+      <div class="muted">No server: data is saved in this browser on this device.</div>
+    </section>
+
+    <!-- APP -->
+    <section id="app" class="card hidden">
+      <div class="topbar">
+        <div>
+          <div style="font-size:18px;font-weight:900;">
+            <span id="charName">—</span>
+            <span class="muted">· Level <span id="charLevel">—</span></span>
+          </div>
+          <div class="muted">Last saved: <span id="lastSaved">—</span></div>
+        </div>
+        <div class="btns" style="margin-top:0;">
+          <button id="btnLongRest" title="Resets HP to max and clears used spell slots">Long Rest</button>
+          <button id="btnSwitch">Switch Character</button>
+          <button id="btnReset" title="Deletes this character from this browser">Reset Character</button>
+        </div>
+      </div>
+
+      <h2>HP</h2>
+      <div class="hpBox">
+        <div>
+          <div class="hpRead">
+            <span id="hpCurrent">0</span> <small>/ <span id="hpMax">0</span></small>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <div>
+              <label for="inputCurrentHp">Current HP</label>
+              <input id="inputCurrentHp" type="number" min="0" />
+            </div>
+            <div>
+              <label for="inputMaxHp">Max HP</label>
+              <input id="inputMaxHp" type="number" min="1" />
+            </div>
+          </div>
+        </div>
+        <div class="hpControls">
+          <button data-hp="-5">-5</button>
+          <button data-hp="-1">-1</button>
+          <button data-hp="+1">+1</button>
+          <button data-hp="+5">+5</button>
+        </div>
+      </div>
+
+      <h2>Spell slots (check when used)</h2>
+      <div id="slots" class="slots"></div>
+
+      <div class="row" style="margin-top:14px;">
+        <div>
+          <h2>Backpack</h2>
+          <label for="inventory">Inventory (one per line works great)</label>
+          <textarea id="inventory" placeholder="- Potion of Healing&#10;- Rope (50 ft)"></textarea>
+        </div>
+        <div>
+          <h2>Notes</h2>
+          <label for="notes">Free-form notes</label>
+          <textarea id="notes" placeholder="NPC names, clues, reminders..."></textarea>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="btns">
+          <button id="btnExport">Export Save (JSON)</button>
+          <button id="btnImport">Import Save (JSON)</button>
+          <input id="fileImport" type="file" accept="application/json" class="hidden" />
+        </div>
+        <div class="muted">
+          Save key: <span class="mono" id="saveKey">—</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /**
+     * Data model:
+     * {
+     *   version: 1,
+     *   name: string,
+     *   level: number,
+     *   maxHp: number,
+     *   currentHp: number,
+     *   spellSlots: { [slotLevel: string]: { max: number, used: boolean[] } },
+     *   inventory: string,
+     *   notes: string,
+     *   updatedAt: string ISO
+     * }
+     */
+
+    const STORAGE_PREFIX = "dnd-tracker:";
+    const $ = (id) => document.getElementById(id);
+
+    const ui = {
+      setup: $("setup"),
+      app: $("app"),
+      statusPill: $("statusPill"),
+
+      setupName: $("setupName"),
+      setupLevel: $("setupLevel"),
+      setupMaxHp: $("setupMaxHp"),
+      setupSlots: $("setupSlots"),
+      btnCreate: $("btnCreate"),
+      btnSetupLoadExisting: $("btnSetupLoadExisting"),
+
+      charName: $("charName"),
+      charLevel: $("charLevel"),
+      lastSaved: $("lastSaved"),
+      saveKey: $("saveKey"),
+
+      hpCurrent: $("hpCurrent"),
+      hpMax: $("hpMax"),
+      inputCurrentHp: $("inputCurrentHp"),
+      inputMaxHp: $("inputMaxHp"),
+
+      slots: $("slots"),
+
+      inventory: $("inventory"),
+      notes: $("notes"),
+
+      btnLongRest: $("btnLongRest"),
+      btnSwitch: $("btnSwitch"),
+      btnReset: $("btnReset"),
+      btnExport: $("btnExport"),
+      btnImport: $("btnImport"),
+      fileImport: $("fileImport"),
+    };
+
+    /** @type {ReturnType<typeof createEmptyState> | null} */
+    let state = null;
+
+    function saveKeyForName(name) {
+      return `${STORAGE_PREFIX}${name.trim().toLowerCase()}`;
+    }
+
+    function nowIso() {
+      return new Date().toISOString();
+    }
+
+    function formatLocalTime(iso) {
+      try {
+        return new Date(iso).toLocaleString();
+      } catch {
+        return "—";
+      }
+    }
+
+    function clampInt(n, min, max) {
+      const x = Number.isFinite(n) ? Math.trunc(n) : 0;
+      return Math.max(min, Math.min(max, x));
+    }
+
+    function createEmptyState({ name, level, maxHp, slotMaxByLevel }) {
+      /** @type {Record<string, {max: number, used: boolean[]}>} */
+      const spellSlots = {};
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        const max = clampInt(slotMaxByLevel[lvl] ?? 0, 0, 99);
+        spellSlots[String(lvl)] = { max, used: Array.from({ length: max }, () => false) };
+      }
+
+      return {
+        version: 1,
+        name: name.trim(),
+        level: clampInt(level, 1, 20),
+        maxHp: clampInt(maxHp, 1, 9999),
+        currentHp: clampInt(maxHp, 0, 9999),
+        spellSlots,
+        inventory: "",
+        notes: "",
+        updatedAt: nowIso(),
+      };
+    }
+
+    function loadStateByName(name) {
+      const key = saveKeyForName(name);
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return null;
+        if (parsed.version !== 1) return null;
+        if (typeof parsed.name !== "string") return null;
+        return migrateAndNormalize(parsed);
+      } catch {
+        return null;
+      }
+    }
+
+    function migrateAndNormalize(s) {
+      const normalized = {
+        version: 1,
+        name: String(s.name ?? "").trim(),
+        level: clampInt(Number(s.level ?? 1), 1, 20),
+        maxHp: clampInt(Number(s.maxHp ?? 1), 1, 9999),
+        currentHp: clampInt(Number(s.currentHp ?? 0), 0, 9999),
+        spellSlots: typeof s.spellSlots === "object" && s.spellSlots ? s.spellSlots : {},
+        inventory: String(s.inventory ?? ""),
+        notes: String(s.notes ?? ""),
+        updatedAt: String(s.updatedAt ?? nowIso()),
+      };
+
+      normalized.currentHp = clampInt(normalized.currentHp, 0, normalized.maxHp);
+
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        const key = String(lvl);
+        const group = normalized.spellSlots[key] || { max: 0, used: [] };
+        const max = clampInt(Number(group.max ?? 0), 0, 99);
+        const usedArr = Array.isArray(group.used) ? group.used.map(Boolean) : [];
+        normalized.spellSlots[key] = {
+          max,
+          used: Array.from({ length: max }, (_, i) => Boolean(usedArr[i] ?? false)),
+        };
+      }
+
+      return normalized;
+    }
+
+    function persistState() {
+      if (!state) return;
+      const key = saveKeyForName(state.name);
+      state.updatedAt = nowIso();
+      localStorage.setItem(key, JSON.stringify(state));
+      ui.lastSaved.textContent = formatLocalTime(state.updatedAt);
+      ui.statusPill.textContent = "Saved";
+      ui.saveKey.textContent = key;
+    }
+
+    function debounce(fn, ms) {
+      let t = null;
+      return (...args) => {
+        if (t) clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    const persistStateDebounced = debounce(persistState, 250);
+
+    function setView(view) {
+      ui.setup.classList.toggle("hidden", view !== "setup");
+      ui.app.classList.toggle("hidden", view !== "app");
+    }
+
+    function renderSetupSlots() {
+      ui.setupSlots.innerHTML = "";
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        const wrap = document.createElement("div");
+        wrap.innerHTML = `
+          <label for="setupSlot${lvl}">Level ${lvl} slots</label>
+          <input id="setupSlot${lvl}" type="number" min="0" max="99" value="0" />
+        `;
+        ui.setupSlots.appendChild(wrap);
+      }
+    }
+
+    function getSlotMaxByLevelFromSetup() {
+      const out = {};
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        const el = $("setupSlot" + lvl);
+        out[lvl] = clampInt(Number(el.value), 0, 99);
+      }
+      return out;
+    }
+
+    function renderApp() {
+      if (!state) return;
+
+      ui.charName.textContent = state.name;
+      ui.charLevel.textContent = String(state.level);
+      ui.hpCurrent.textContent = String(state.currentHp);
+      ui.hpMax.textContent = String(state.maxHp);
+
+      ui.inputCurrentHp.value = String(state.currentHp);
+      ui.inputMaxHp.value = String(state.maxHp);
+
+      ui.inventory.value = state.inventory;
+      ui.notes.value = state.notes;
+
+      ui.lastSaved.textContent = formatLocalTime(state.updatedAt);
+      ui.saveKey.textContent = saveKeyForName(state.name);
+
+      renderSlots();
+      ui.statusPill.textContent = "Loaded";
+    }
+
+    function renderSlots() {
+      ui.slots.innerHTML = "";
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        const k = String(lvl);
+        const group = state.spellSlots[k];
+        if (!group || group.max <= 0) continue;
+
+        const box = document.createElement("div");
+        box.className = "slotGroup";
+
+        const title = document.createElement("div");
+        title.className = "slotTitle";
+        title.innerHTML = `
+          <div><strong>Level ${lvl}</strong> <span class="muted">(${group.used.filter(Boolean).length}/${group.max} used)</span></div>
+          <button data-slot-reset="${k}" title="Clear used slots for this level">Clear</button>
+        `;
+
+        const checks = document.createElement("div");
+        checks.className = "checks";
+
+        group.used.forEach((used, idx) => {
+          const lbl = document.createElement("label");
+          lbl.className = "check";
+          lbl.innerHTML = `
+            <input type="checkbox" data-slot="${k}" data-slot-idx="${idx}" ${used ? "checked" : ""}/>
+            <span>Slot ${idx + 1}</span>
+          `;
+          checks.appendChild(lbl);
+        });
+
+        box.appendChild(title);
+        box.appendChild(checks);
+        ui.slots.appendChild(box);
+      }
+
+      if (!ui.slots.children.length) {
+        const empty = document.createElement("div");
+        empty.className = "muted";
+        empty.textContent = "No spell slots configured. Switch character → set them up.";
+        ui.slots.appendChild(empty);
+      }
+    }
+
+    function applyHpDelta(delta) {
+      if (!state) return;
+      state.currentHp = clampInt(state.currentHp + delta, 0, state.maxHp);
+      ui.hpCurrent.textContent = String(state.currentHp);
+      ui.inputCurrentHp.value = String(state.currentHp);
+      ui.statusPill.textContent = "Unsaved";
+      persistStateDebounced();
+    }
+
+    function updateHpFromInputs() {
+      if (!state) return;
+      const maxHp = clampInt(Number(ui.inputMaxHp.value), 1, 9999);
+      const curHp = clampInt(Number(ui.inputCurrentHp.value), 0, maxHp);
+
+      state.maxHp = maxHp;
+      state.currentHp = curHp;
+
+      ui.hpMax.textContent = String(state.maxHp);
+      ui.hpCurrent.textContent = String(state.currentHp);
+      ui.statusPill.textContent = "Unsaved";
+      persistStateDebounced();
+    }
+
+    function attachAppHandlers() {
+      document.querySelectorAll("button[data-hp]").forEach((btn) => {
+        btn.addEventListener("click", () => applyHpDelta(Number(btn.getAttribute("data-hp"))));
+      });
+
+      ui.inputCurrentHp.addEventListener("input", updateHpFromInputs);
+      ui.inputMaxHp.addEventListener("input", updateHpFromInputs);
+
+      ui.inventory.addEventListener("input", () => {
+        if (!state) return;
+        state.inventory = ui.inventory.value;
+        ui.statusPill.textContent = "Unsaved";
+        persistStateDebounced();
+      });
+
+      ui.notes.addEventListener("input", () => {
+        if (!state) return;
+        state.notes = ui.notes.value;
+        ui.statusPill.textContent = "Unsaved";
+        persistStateDebounced();
+      });
+
+      ui.slots.addEventListener("change", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLInputElement)) return;
+        if (t.type !== "checkbox") return;
+
+        const lvl = t.getAttribute("data-slot");
+        const idx = Number(t.getAttribute("data-slot-idx"));
+        if (!lvl || !Number.isFinite(idx)) return;
+
+        const group = state.spellSlots[lvl];
+        if (!group) return;
+
+        group.used[idx] = t.checked;
+        ui.statusPill.textContent = "Unsaved";
+        renderSlots();
+        persistStateDebounced();
+      });
+
+      ui.slots.addEventListener("click", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        const lvl = t.getAttribute("data-slot-reset");
+        if (!lvl) return;
+
+        const group = state.spellSlots[lvl];
+        if (!group) return;
+        group.used = group.used.map(() => false);
+        ui.statusPill.textContent = "Unsaved";
+        renderSlots();
+        persistStateDebounced();
+      });
+
+      ui.btnLongRest.addEventListener("click", () => {
+        if (!state) return;
+        state.currentHp = state.maxHp;
+        for (let lvl = 1; lvl <= 9; lvl++) {
+          const k = String(lvl);
+          state.spellSlots[k].used = state.spellSlots[k].used.map(() => false);
+        }
+        renderApp();
+        ui.statusPill.textContent = "Unsaved";
+        persistStateDebounced();
+      });
+
+      ui.btnSwitch.addEventListener("click", () => {
+        state = null;
+        ui.statusPill.textContent = "Not loaded";
+        setView("setup");
+      });
+
+      ui.btnReset.addEventListener("click", () => {
+        if (!state) return;
+        const key = saveKeyForName(state.name);
+        localStorage.removeItem(key);
+        state = null;
+        ui.statusPill.textContent = "Deleted";
+        setView("setup");
+      });
+
+      ui.btnExport.addEventListener("click", () => {
+        if (!state) return;
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${state.name.replace(/\s+/g, "_")}_dnd_tracker.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      ui.btnImport.addEventListener("click", () => ui.fileImport.click());
+
+      ui.fileImport.addEventListener("change", async () => {
+        const file = ui.fileImport.files?.[0];
+        ui.fileImport.value = "";
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          const imported = migrateAndNormalize(parsed);
+          if (!imported.name) throw new Error("Missing name");
+          state = imported;
+          persistState();
+          setView("app");
+          renderApp();
+        } catch (err) {
+          alert("Import failed: " + (err?.message || String(err)));
+        }
+      });
+    }
+
+    function parseNameFromUrl() {
+      const u = new URL(window.location.href);
+      const name = u.searchParams.get("name");
+      return name ? name.trim() : "";
+    }
+
+    function setUrlName(name) {
+      const u = new URL(window.location.href);
+      u.searchParams.set("name", name);
+      history.replaceState(null, "", u.toString());
+    }
+
+    function createOrLoad({ forceLoadOnly }) {
+      const name = ui.setupName.value.trim();
+      if (!name) {
+        alert("Please enter a character name.");
+        return;
+      }
+
+      const existing = loadStateByName(name);
+      if (forceLoadOnly) {
+        if (!existing) {
+          alert("No saved character found for that name on this device/browser.");
+          return;
+        }
+        state = existing;
+      } else {
+        if (existing) {
+          state = existing;
+        } else {
+          const level = Number(ui.setupLevel.value);
+          const maxHp = Number(ui.setupMaxHp.value);
+          const slotMaxByLevel = getSlotMaxByLevelFromSetup();
+          state = createEmptyState({ name, level, maxHp, slotMaxByLevel });
+        }
+      }
+
+      setUrlName(state.name);
+      persistState();
+      setView("app");
+      renderApp();
+    }
+
+    function boot() {
+      renderSetupSlots();
+      attachAppHandlers();
+
+      ui.btnCreate.addEventListener("click", () => createOrLoad({ forceLoadOnly: false }));
+      ui.btnSetupLoadExisting.addEventListener("click", () => createOrLoad({ forceLoadOnly: true }));
+
+      const urlName = parseNameFromUrl();
+      if (urlName) {
+        ui.setupName.value = urlName;
+        const loaded = loadStateByName(urlName);
+        if (loaded) {
+          state = loaded;
+          setView("app");
+          renderApp();
+          ui.statusPill.textContent = "Loaded from link";
+          return;
+        }
+      }
+
+      setView("setup");
+      ui.statusPill.textContent = "Setup";
+    }
+
+    boot();
+  </script>
+</body>
+</html>
