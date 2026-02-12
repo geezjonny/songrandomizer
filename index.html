@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Party Tracker</title>
+  <title>Crystal Faire — Party Tracker</title>
   <style>
     :root{
       --bg:#0f0c0a;
@@ -167,6 +167,26 @@
       font-size:12px;
       line-height:1.35
     }
+
+    .spellList{
+      display:grid;
+      gap:8px;
+      margin-top:8px;
+    }
+    .spellItem{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      border-radius: 12px;
+      padding: 10px 10px;
+    }
+    .spellItem input{transform: scale(1.2); margin-top:2px}
+    .spellItem .title{font-weight:1000}
+    .spellItem .meta{color: rgba(255,255,255,.78); font-weight:800; margin-top:2px}
+    .spellItem .desc{color: rgba(255,255,255,.78); font-weight:750; margin-top:4px; line-height:1.25}
+    .spellTopline{display:flex; justify-content:space-between; gap:10px; align-items:center;}
   </style>
 </head>
 <body>
@@ -185,80 +205,8 @@
     <p class="sub" id="sub"></p>
 
     <div class="grid">
-      <div class="box">
-        <h3>Core</h3>
-        <div class="kv"><div class="k">Level</div><div class="v" id="level"></div></div>
-        <div class="kv"><div class="k">Race</div><div class="v" id="race"></div></div>
-        <div class="kv"><div class="k">Class</div><div class="v" id="cls"></div></div>
-        <div class="kv"><div class="k">AC</div><div class="v" id="ac"></div></div>
-        <div class="kv"><div class="k">Speed</div><div class="v" id="speed"></div></div>
-        <div class="kv"><div class="k">Init</div><div class="v" id="init"></div></div>
-        <div class="kv"><div class="k">Prof</div><div class="v" id="prof"></div></div>
-        <div class="kv"><div class="k">Max HP</div><div class="v" id="maxhp"></div></div>
-        <div style="margin-top:10px">
-          <span class="pill" id="hpPill">HP: —</span>
-        </div>
-      </div>
 
-      <div class="box">
-        <h3>Abilities</h3>
-        <div class="kv"><div class="k">STR</div><div class="v" id="str"></div></div>
-        <div class="kv"><div class="k">DEX</div><div class="v" id="dex"></div></div>
-        <div class="kv"><div class="k">CON</div><div class="v" id="con"></div></div>
-        <div class="kv"><div class="k">INT</div><div class="v" id="int"></div></div>
-        <div class="kv"><div class="k">WIS</div><div class="v" id="wis"></div></div>
-        <div class="kv"><div class="k">CHA</div><div class="v" id="cha"></div></div>
-      </div>
-
-      <div class="box" id="magicBox" hidden>
-        <h3>Spells & Cantrips</h3>
-        <div class="muted" id="magicHint"></div>
-        <div style="margin-top:8px">
-          <div class="label">Cantrips</div>
-          <ul id="cantrips"></ul>
-        </div>
-        <div style="margin-top:8px">
-          <div class="label">Spells</div>
-          <ul id="spells"></ul>
-        </div>
-      </div>
-
-      <div class="box" id="spellBox" hidden>
-        <h3>Spell Slots</h3>
-        <div class="muted" id="spellHint"></div>
-        <div class="slotsWrap">
-          <div class="slotsLine" id="lineL1" hidden>
-            <div class="slotsLabel">Level 1</div>
-            <div class="slots" id="slotsL1"></div>
-          </div>
-          <div class="slotsLine" id="lineL2" hidden>
-            <div class="slotsLabel">Level 2</div>
-            <div class="slots" id="slotsL2"></div>
-          </div>
-        </div>
-        <div class="foot">Tap diamonds to mark used slots. (Spell slots reset on Long Rest.)</div>
-      </div>
-
-      <div class="box">
-        <h3>Skills</h3>
-        <ul id="skills"></ul>
-      </div>
-
-      <div class="box">
-        <h3>Saves</h3>
-        <ul id="saves"></ul>
-      </div>
-
-      <div class="box">
-        <h3>Attacks</h3>
-        <ul id="attacks"></ul>
-      </div>
-
-      <div class="box">
-        <h3>Class Feats</h3>
-        <ul id="feats"></ul>
-      </div>
-
+      <!-- MOVED UP: Session Tracker + Resources -->
       <div class="box">
         <h3>Session Tracker</h3>
 
@@ -289,20 +237,98 @@
           <div class="resources" id="resources"></div>
         </div>
 
-        <div class="foot">
-          Auto-saves on this device.
+        <div class="foot">Auto-saves on this device.</div>
+      </div>
+
+      <!-- NEW: Spells & Cantrips -->
+      <div class="box" id="spellsKnownBox" hidden>
+        <div class="spellTopline">
+          <h3 style="margin:0">Spells & Cantrips</h3>
+          <span class="pill" id="spellChoosePill">—</span>
+        </div>
+        <div class="muted" id="spellMeta"></div>
+
+        <div style="margin-top:10px">
+          <div class="label">Cantrips</div>
+          <ul id="cantrips"></ul>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="label">Spells</div>
+          <div class="spellList" id="spellsPick"></div>
+          <div class="foot" id="spellFoot"></div>
         </div>
       </div>
+
+      <div class="box">
+        <h3>Core</h3>
+        <div class="kv"><div class="k">Level</div><div class="v" id="level"></div></div>
+        <div class="kv"><div class="k">Race</div><div class="v" id="race"></div></div>
+        <div class="kv"><div class="k">Class</div><div class="v" id="cls"></div></div>
+        <div class="kv"><div class="k">AC</div><div class="v" id="ac"></div></div>
+        <div class="kv"><div class="k">Speed</div><div class="v" id="speed"></div></div>
+        <div class="kv"><div class="k">Init</div><div class="v" id="init"></div></div>
+        <div class="kv"><div class="k">Prof</div><div class="v" id="prof"></div></div>
+        <div class="kv"><div class="k">Max HP</div><div class="v" id="maxhp"></div></div>
+        <div style="margin-top:10px">
+          <span class="pill" id="hpPill">HP: —</span>
+        </div>
+      </div>
+
+      <div class="box">
+        <h3>Abilities</h3>
+        <div class="kv"><div class="k">STR</div><div class="v" id="str"></div></div>
+        <div class="kv"><div class="k">DEX</div><div class="v" id="dex"></div></div>
+        <div class="kv"><div class="k">CON</div><div class="v" id="con"></div></div>
+        <div class="kv"><div class="k">INT</div><div class="v" id="int"></div></div>
+        <div class="kv"><div class="k">WIS</div><div class="v" id="wis"></div></div>
+        <div class="kv"><div class="k">CHA</div><div class="v" id="cha"></div></div>
+      </div>
+
+      <div class="box">
+        <h3>Skills</h3>
+        <ul id="skills"></ul>
+      </div>
+
+      <div class="box">
+        <h3>Saves</h3>
+        <ul id="saves"></ul>
+      </div>
+
+      <div class="box">
+        <h3>Attacks</h3>
+        <ul id="attacks"></ul>
+      </div>
+
+      <div class="box">
+        <h3>Class Feats</h3>
+        <ul id="feats"></ul>
+      </div>
+
+      <div class="box" id="spellBox" hidden>
+        <h3>Spell Slots</h3>
+        <div class="muted" id="spellHint"></div>
+        <div class="slotsWrap">
+          <div class="slotsLine" id="lineL1" hidden>
+            <div class="slotsLabel">Level 1</div>
+            <div class="slots" id="slotsL1"></div>
+          </div>
+          <div class="slotsLine" id="lineL2" hidden>
+            <div class="slotsLabel">Level 2</div>
+            <div class="slots" id="slotsL2"></div>
+          </div>
+        </div>
+        <div class="foot">Tap diamonds to mark used slots. (Spell slots reset on Long Rest.)</div>
+      </div>
+
     </div>
   </div>
 </div>
 
 <script>
-  // PARTY DATA (spell slots corrected to standard 5e at level 2)
-  // Cleric L2: 3x L1, 0x L2
-  // Bard L2:   3x L1, 0x L2
-  // Paladin L2:2x L1, 0x L2
-  // Ranger L2: 2x L1, 0x L2
+  // ========= PARTY DATA =========
+  // Note: spell slots here match your tracker rules.
+  // Paladin "spells prepared" rule: CHA mod + half paladin level (rounded down). :contentReference[oaicite:3]{index=3}
   const PCS = [
     {
       id:"seris", name:"Seris Dawnblade", race:"Human", cls:"Fighter", level:2,
@@ -312,7 +338,8 @@
       saves:["Strength +5","Constitution +4"],
       attacks:["Longsword (melee) — To Hit: d20+5 — Damage: 1d8+5"],
       feats:["Second Wind — regain 1d10+2 HP (1/short rest)","Fight Style: Dueling — while using one-handed melee weapon and no other weapons, deal +2 damage","Action Surge — take one extra action (1/short rest)"],
-      spells:null,
+      spellSlots:null,
+      spellPick:null,
       resources:[
         { key:"second_wind", name:"Second Wind", rest:"short", effect:"Regain 1d10+2 HP. (1/Short Rest)" },
         { key:"action_surge", name:"Action Surge", rest:"short", effect:"Take one extra action on your turn. (1/Short Rest)" },
@@ -333,7 +360,8 @@
         "Fight Style: Great Weapon Fighting — reroll 1s/2s on damage dice",
         "Action Surge — take one extra action (1/short rest)"
       ],
-      spells:null,
+      spellSlots:null,
+      spellPick:null,
       resources:[
         { key:"second_wind", name:"Second Wind", rest:"short", effect:"Regain 1d10+2 HP. (1/Short Rest)" },
         { key:"action_surge", name:"Action Surge", rest:"short", effect:"Take one extra action on your turn. (1/Short Rest)" },
@@ -353,9 +381,12 @@
         "Sneak Attack (1/turn) — advantage OR ally adjacent: +1d6 damage",
         "Cunning Action — Dash/Disengage/Hide as bonus action"
       ],
-      spells:null,
+      spellSlots:null,
+      spellPick:null,
       resources:[]
     },
+
+    // Cleric table exists in SRD; L2 has 1st-level slots (standard is 3). :contentReference[oaicite:4]{index=4}
     {
       id:"haldor", name:"Haldor Brightshield", race:"Dwarf", cls:"Cleric (Life Domain)", level:2,
       core:{ ac:18, speed:"25 ft", init:"+0", prof:"+2", maxHp:18 },
@@ -371,13 +402,25 @@
         "Channel Divinity (1/short rest): Turn Undead OR Preserve Life (split 10 HP within 30 ft)",
         "Spellcasting (Lvl 2)"
       ],
-      cantrips: [],
-      spellList: ["Bless","Cure Wounds","Protection from Evil and Good","Guiding Bolt","Healing Word","Sanctuary"],
-      spells:{ l1:3, l2:0 },
+      spellSlots:{ l1:3, l2:0 },
+      spellPick:{
+        mode:"prepare",
+        choose:4,
+        cantrips:["(Add Haldor’s cantrips here)"],
+        spells:[
+          { key:"bless", name:"Bless", meta:"Action • 30 ft • Concentration", desc:"Choose up to 3 allies. They add +1d4 to attack rolls and saving throws." },
+          { key:"cure_wounds", name:"Cure Wounds", meta:"Action • 5 ft", desc:"Heal 1d8 + WIS HP." },
+          { key:"prot_evil_good", name:"Protection from Evil and Good", meta:"Action • 5 ft • Concentration (10 min)", desc:"Protection vs undead/fiends/celestials/fey/elementals/aberrations: attackers have disadvantage; target can’t be charmed/frightened/possessed by them." },
+          { key:"guiding_bolt", name:"Guiding Bolt", meta:"Action • 120 ft", desc:"Ranged radiant attack: 4d6 radiant, and the next attack against that target has advantage." },
+          { key:"healing_word", name:"Healing Word", meta:"Bonus Action • 60 ft", desc:"Heal 1d4 + WIS HP at range." },
+          { key:"sanctuary", name:"Sanctuary", meta:"Bonus Action • 30 ft • 1 min", desc:"Protect an ally: enemies must pass a WIS save to attack them, or choose a new target." },
+        ]
+      },
       resources:[
         { key:"channel_divinity", name:"Channel Divinity", rest:"short", effect:"Choose Turn Undead or Preserve Life. (1/Short Rest)" },
       ]
     },
+
     {
       id:"ashara", name:"Ashara Solkindle", race:"Fire Genasi", cls:"Cleric (Life Domain)", level:2,
       core:{ ac:16, speed:"30 ft", init:"+0", prof:"+2", maxHp:18 },
@@ -391,18 +434,31 @@
         "Warm Hands (1/short rest) — touch a creature to end shivering/fear",
         "Spellcasting (Lvl 2)"
       ],
-      cantrips: ["Sacred Flame","Guidance","Spare the Dying"],
-      spellList: ["Bless","Cure Wounds","Protection from Evil and Good","Guiding Bolt","Healing Word","Sanctuary"],
-      spells:{ l1:3, l2:0 },
+      spellSlots:{ l1:3, l2:0 },
+      spellPick:{
+        mode:"prepare",
+        choose:4,
+        cantrips:["Sacred Flame","Guidance","Spare the Dying"],
+        spells:[
+          { key:"bless", name:"Bless", meta:"Action • 30 ft • Concentration", desc:"Choose up to 3 allies. They add +1d4 to attack rolls and saving throws." },
+          { key:"cure_wounds", name:"Cure Wounds", meta:"Action • 5 ft", desc:"Heal 1d8 + WIS HP." },
+          { key:"prot_evil_good", name:"Protection from Evil and Good", meta:"Action • 5 ft • Concentration (10 min)", desc:"Protection vs undead/fiends/celestials/fey/elementals/aberrations: attackers have disadvantage; target can’t be charmed/frightened/possessed by them." },
+          { key:"guiding_bolt", name:"Guiding Bolt", meta:"Action • 120 ft", desc:"Ranged radiant attack: 4d6 radiant, and the next attack against that target has advantage." },
+          { key:"healing_word", name:"Healing Word", meta:"Bonus Action • 60 ft", desc:"Heal 1d4 + WIS HP at range." },
+          { key:"sanctuary", name:"Sanctuary", meta:"Bonus Action • 30 ft • 1 min", desc:"Protect an ally: enemies must pass a WIS save to attack them, or choose a new target." },
+        ]
+      },
       resources:[
         { key:"channel_divinity", name:"Channel Divinity", rest:"short", effect:"Choose Turn Undead or Preserve Life. (1/Short Rest)" },
         { key:"warm_hands", name:"Warm Hands", rest:"short", effect:"Touch a creature to end shivering/fear. (1/Short Rest)" },
       ]
     },
+
     {
       id:"edrin", name:"Edrin Valebright", race:"Human", cls:"Paladin", level:2,
       core:{ ac:19, speed:"30 ft", init:"+0", prof:"+2", maxHp:20 },
-      abilities:{ str:"+3", con:"+2", dex:"+0", wis:"+1", int:"+0", cha:"+2" }, /* FIXED */
+      // FIXED SYNTAX ERROR HERE:
+      abilities:{ str:"+3", con:"+2", dex:"+0", wis:"+1", int:"+0", cha:"+2" },
       skills:["Athletics +5","Persuasion +4","Insight +3"],
       saves:["Wisdom +3","Charisma +4"],
       attacks:["Longsword (melee) — To Hit: d20+5 — Damage: 1d8+3"],
@@ -412,13 +468,24 @@
         "Defense (Fighting Style) — AC +1 (already added)",
         "Spellcasting"
       ],
-      cantrips: [],
-      spellList: ["Bless","Command","Cure Wounds","Protection from Evil and Good","Shield of Faith"],
-      spells:{ l1:2, l2:0 },
+      spellSlots:{ l1:2, l2:0 },
+      spellPick:{
+        mode:"prepare",
+        choose:3, // matches your sheet; also matches CHA(+2)+half L2(1)=3 :contentReference[oaicite:5]{index=5}
+        cantrips:[],
+        spells:[
+          { key:"bless", name:"Bless", meta:"Action • 30 ft • Concentration", desc:"Choose up to 3 allies. They add +1d4 to attack rolls and saving throws." },
+          { key:"command", name:"Command", meta:"Action • 60 ft • 1 round • WIS save", desc:"Speak a 1-word command (drop, flee, halt, etc.). On a failed save, the target obeys on its next turn." },
+          { key:"cure_wounds", name:"Cure Wounds", meta:"Action • 5 ft", desc:"Heal 1d8 + CHA HP." },
+          { key:"prot_evil_good", name:"Protection from Evil and Good", meta:"Action • 5 ft • Concentration (10 min)", desc:"Protection vs undead/fiends/celestials/fey/elementals/aberrations: attackers have disadvantage; target can’t be charmed/frightened/possessed by them." },
+          { key:"shield_of_faith", name:"Shield of Faith", meta:"Bonus Action • Self • Concentration (1 min)", desc:"Give a creature +2 AC." },
+        ]
+      },
       resources:[
         { key:"lay_on_hands", name:"Lay on Hands (10 HP pool)", rest:"long", effect:"You have a 10 HP pool per long rest. Spend any amount as an action to heal." },
       ]
     },
+
     {
       id:"rurik", name:"Rurik Goldnote", race:"Dwarf", cls:"Bard", level:2,
       core:{ ac:14, speed:"25 ft", init:"+1", prof:"+2", maxHp:17 },
@@ -435,15 +502,27 @@
         "Song of Rest (d6) — during a short rest, allies heal +1d6 extra",
         "Spellcasting (Lvl 2)"
       ],
-      cantrips: [],
-      spellList: ["Healing Word","Dissonant Whispers","Faerie Fire","Sleep","Tasha’s Hideous Laughter","Detect Magic"],
-      spells:{ l1:3, l2:0 },
+      spellSlots:{ l1:3, l2:0 },
+      spellPick:{
+        mode:"known",
+        choose:2, // your sheet says choose 2
+        cantrips:["(Pick 2 bard cantrips)"],
+        spells:[
+          { key:"healing_word", name:"Healing Word", meta:"Bonus Action • 60 ft", desc:"Heal 1d4 + CHA HP at range." },
+          { key:"dissonant_whispers", name:"Dissonant Whispers", meta:"Action • 60 ft • WIS save", desc:"Deal 3d6 psychic. Target must use its reaction to run away." },
+          { key:"faerie_fire", name:"Faerie Fire", meta:"Action • 60 ft • Concentration (1 min) • DEX save", desc:"Outline creatures in light. Attacks against them have advantage, and they can’t turn invisible." },
+          { key:"sleep", name:"Sleep", meta:"Action • 90 ft", desc:"Put creatures to sleep in an area. Works best on weak enemies." },
+          { key:"tashas", name:"Tasha’s Hideous Laughter", meta:"Action • 30 ft • Concentration (1 min) • WIS save", desc:"Target falls prone laughing and is incapacitated until it saves." },
+          { key:"detect_magic", name:"Detect Magic", meta:"Action • Self • Concentration (10 min)", desc:"Sense magic within 30 ft." },
+        ]
+      },
       resources:[
         { key:"bardic_inspiration_1", name:"Bardic Inspiration (use #1)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
         { key:"bardic_inspiration_2", name:"Bardic Inspiration (use #2)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
         { key:"bardic_inspiration_3", name:"Bardic Inspiration (use #3)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
       ]
     },
+
     {
       id:"lark", name:"Lark Thistledown", race:"Halfling", cls:"Bard", level:2,
       core:{ ac:14, speed:"25 ft", init:"+3", prof:"+2", maxHp:15 },
@@ -460,15 +539,27 @@
         "Song of Rest (d6) — during a short rest, allies heal +1d6 extra",
         "Spellcasting (Lvl 2)"
       ],
-      cantrips: [],
-      spellList: ["Healing Word","Dissonant Whispers","Faerie Fire","Sleep","Tasha’s Hideous Laughter","Detect Magic"],
-      spells:{ l1:3, l2:0 },
+      spellSlots:{ l1:3, l2:0 },
+      spellPick:{
+        mode:"known",
+        choose:2,
+        cantrips:["(Pick 2 bard cantrips)"],
+        spells:[
+          { key:"healing_word", name:"Healing Word", meta:"Bonus Action • 60 ft", desc:"Heal 1d4 + CHA HP at range." },
+          { key:"dissonant_whispers", name:"Dissonant Whispers", meta:"Action • 60 ft • WIS save", desc:"Deal 3d6 psychic. Target must use its reaction to run away." },
+          { key:"faerie_fire", name:"Faerie Fire", meta:"Action • 60 ft • Concentration (1 min) • DEX save", desc:"Outline creatures in light. Attacks against them have advantage, and they can’t turn invisible." },
+          { key:"sleep", name:"Sleep", meta:"Action • 90 ft", desc:"Put creatures to sleep in an area. Works best on weak enemies." },
+          { key:"tashas", name:"Tasha’s Hideous Laughter", meta:"Action • 30 ft • Concentration (1 min) • WIS save", desc:"Target falls prone laughing and is incapacitated until it saves." },
+          { key:"detect_magic", name:"Detect Magic", meta:"Action • Self • Concentration (10 min)", desc:"Sense magic within 30 ft." },
+        ]
+      },
       resources:[
         { key:"bardic_inspiration_1", name:"Bardic Inspiration (use #1)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
         { key:"bardic_inspiration_2", name:"Bardic Inspiration (use #2)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
         { key:"bardic_inspiration_3", name:"Bardic Inspiration (use #3)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
       ]
     },
+
     {
       id:"liora", name:"Liora Windstep", race:"Wood Elf", cls:"Ranger", level:2,
       core:{ ac:15, speed:"30 ft", init:"+3", prof:"+2", maxHp:19 },
@@ -484,11 +575,23 @@
         "Natural Explorer — Coastal/Forest: ignore difficult terrain and never get lost",
         "Spellcasting (Lvl 2)"
       ],
-      cantrips: [],
-      spellList: ["Hunter’s Mark","Cure Wounds","Goodberry","Fog Cloud","Detect Magic","Snare"],
-      spells:{ l1:2, l2:0 },
+      spellSlots:{ l1:2, l2:0 },
+      spellPick:{
+        mode:"known",
+        choose:2,
+        cantrips:[],
+        spells:[
+          { key:"hunters_mark", name:"Hunter’s Mark", meta:"Bonus Action • 90 ft • Concentration (1 hr)", desc:"Mark a target. You deal +1d6 damage each time you hit it, and you have advantage to track it." },
+          { key:"cure_wounds", name:"Cure Wounds", meta:"Action • 5 ft", desc:"Heal 1d8 + WIS HP." },
+          { key:"goodberry", name:"Goodberry", meta:"Action", desc:"Create 10 berries. Eating one heals 1 HP and counts as a day of food." },
+          { key:"fog_cloud", name:"Fog Cloud", meta:"Action • 120 ft • Concentration (1 hr)", desc:"Create a big cloud that blocks vision. Great for escapes and saving civilians." },
+          { key:"detect_magic", name:"Detect Magic", meta:"Action • Self • Concentration (10 min)", desc:"Sense magic within 30 ft." },
+          { key:"snare", name:"Snare", meta:"1 minute • 25 ft", desc:"Set a hidden trap. The first creature that steps in it must save or be restrained and lifted off the ground." },
+        ]
+      },
       resources:[]
     },
+
     {
       id:"azrael", name:"Azrael Cinderborn", race:"Tiefling", cls:"Barbarian", level:2,
       core:{ ac:15, speed:"30 ft", init:"+2", prof:"+2", maxHp:25 },
@@ -504,7 +607,8 @@
         "Reckless Attack — first attack each turn: advantage; enemies have advantage to hit you until next turn",
         "Danger Sense — advantage on DEX saves vs effects you can see"
       ],
-      spells:null,
+      spellSlots:null,
+      spellPick:null,
       resources:[
         { key:"rage_1", name:"Rage (use #1)", rest:"long", effect:"Bonus action to enter Rage. (2/Long Rest)" },
         { key:"rage_2", name:"Rage (use #2)", rest:"long", effect:"Bonus action to enter Rage. (2/Long Rest)" },
@@ -522,11 +626,6 @@
   const notes = el("notes");
   const conds = el("conds");
 
-  const magicBox = el("magicBox");
-  const magicHint = el("magicHint");
-  const cantripsUl = el("cantrips");
-  const spellsUl = el("spells");
-
   const spellBox = el("spellBox");
   const spellHint = el("spellHint");
   const slotsL1 = el("slotsL1");
@@ -534,9 +633,15 @@
   const lineL1 = el("lineL1");
   const lineL2 = el("lineL2");
 
-  const resourcesEl = el("resources");
+  const spellsKnownBox = el("spellsKnownBox");
+  const spellChoosePill = el("spellChoosePill");
+  const spellMeta = el("spellMeta");
+  const cantripsEl = el("cantrips");
+  const spellsPickEl = el("spellsPick");
+  const spellFoot = el("spellFoot");
 
   let currentPcId = null;
+
   function keyFor(pcId){ return `tracker::${pcId}`; }
 
   function populate(){
@@ -561,15 +666,6 @@
       const li = document.createElement("li");
       li.textContent = t;
       ul.appendChild(li);
-    });
-  }
-
-  function setListEl(ulEl, items){
-    ulEl.innerHTML = "";
-    (items || []).forEach(t=>{
-      const li = document.createElement("li");
-      li.textContent = t;
-      ulEl.appendChild(li);
     });
   }
 
@@ -603,40 +699,122 @@
     el("hpPill").textContent = `HP: ${cur} / ${maxHp}`;
   }
 
-  function buildResources(pc){
-    resourcesEl.innerHTML = "";
-    const res = Array.isArray(pc.resources) ? pc.resources : [];
-    if(res.length === 0){
-      resourcesEl.innerHTML = `<div class="muted">—</div>`;
+  // ===== RESOURCES MODULE =====
+  const ResourcesModule = (() => {
+    const resourcesEl = el("resources");
+
+    function build(pc){
+      resourcesEl.innerHTML = "";
+      const res = Array.isArray(pc.resources) ? pc.resources : [];
+      if(res.length === 0){
+        resourcesEl.innerHTML = `<div class="muted">—</div>`;
+        return;
+      }
+
+      res.forEach(r=>{
+        const row = document.createElement("div");
+        row.className = "checkrow";
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.dataset.resource = r.key;
+        cb.addEventListener("change", save);
+
+        const text = document.createElement("div");
+        text.innerHTML = `<div class="title">${r.name} <span class="muted">(${r.rest} rest)</span></div>
+                          <div class="desc">${r.effect}</div>`;
+
+        const info = document.createElement("button");
+        info.className = "infoBtn";
+        info.type = "button";
+        info.textContent = "?";
+        info.addEventListener("click", ()=>{
+          alert(`${r.name}\n\n${r.effect}\n\nResets on: ${r.rest} rest`);
+        });
+
+        row.appendChild(cb);
+        row.appendChild(text);
+        row.appendChild(info);
+        resourcesEl.appendChild(row);
+      });
+    }
+
+    return { build };
+  })();
+
+  // ===== SPELLS DISPLAY + PICK =====
+  function buildSpells(pc){
+    const sp = pc.spellPick;
+    if(!sp){
+      spellsKnownBox.hidden = true;
+      cantripsEl.innerHTML = "";
+      spellsPickEl.innerHTML = "";
+      spellMeta.textContent = "";
+      spellFoot.textContent = "";
       return;
     }
 
-    res.forEach(r=>{
+    spellsKnownBox.hidden = false;
+
+    // Cantrips list (display only)
+    cantripsEl.innerHTML = "";
+    (sp.cantrips || []).forEach(c=>{
+      const li = document.createElement("li");
+      li.textContent = c;
+      cantripsEl.appendChild(li);
+    });
+    if(!(sp.cantrips || []).length){
+      const li = document.createElement("li");
+      li.className = "muted";
+      li.textContent = "—";
+      cantripsEl.appendChild(li);
+    }
+
+    // Spells (checkbox pick)
+    spellsPickEl.innerHTML = "";
+    const chooseN = sp.choose ?? 0;
+    const modeLabel = sp.mode === "prepare" ? "Prepared spells" : "Spells known";
+    spellMeta.textContent = `${modeLabel}: choose ${chooseN}` + (pc.spellSlots ? ` • Slots: L1 ${pc.spellSlots.l1 || 0}` : "");
+    spellChoosePill.textContent = `Choose ${chooseN}`;
+
+    (sp.spells || []).forEach(s=>{
       const row = document.createElement("div");
-      row.className = "checkrow";
+      row.className = "spellItem";
 
       const cb = document.createElement("input");
       cb.type = "checkbox";
-      cb.dataset.resource = r.key;
-      cb.addEventListener("change", save);
+      cb.dataset.spellpick = s.key;
+      cb.addEventListener("change", ()=>{
+        enforceSpellPickLimit(chooseN);
+        save();
+      });
 
       const text = document.createElement("div");
-      text.innerHTML = `<div class="title">${r.name} <span class="muted">(${r.rest} rest)</span></div>
-                        <div class="desc">${r.effect}</div>`;
-
-      const info = document.createElement("button");
-      info.className = "infoBtn";
-      info.type = "button";
-      info.textContent = "?";
-      info.addEventListener("click", ()=>{
-        alert(`${r.name}\n\n${r.effect}\n\nResets on: ${r.rest} rest`);
-      });
+      text.innerHTML = `<div class="title">${s.name}</div>
+                        <div class="meta">${s.meta || ""}</div>
+                        <div class="desc">${s.desc || ""}</div>`;
 
       row.appendChild(cb);
       row.appendChild(text);
-      row.appendChild(info);
-      resourcesEl.appendChild(row);
+      spellsPickEl.appendChild(row);
     });
+
+    spellFoot.textContent = "Tap spells to select your list. Auto-saves on this device.";
+  }
+
+  function enforceSpellPickLimit(chooseN){
+    if(!chooseN || chooseN <= 0) return;
+
+    const picks = Array.from(document.querySelectorAll('[data-spellpick]'));
+    const checked = picks.filter(x=>x.checked);
+
+    if(checked.length <= chooseN) return;
+
+    // If over limit, undo the most recent change by unchecking the last one that triggered
+    // (We don’t know which was last reliably; simplest: uncheck the last checked in DOM order.)
+    const last = checked[checked.length - 1];
+    last.checked = false;
+    alert(`You can only choose ${chooseN} spell(s) for this character.`);
   }
 
   function load(){
@@ -645,14 +823,17 @@
     const pc = PCS.find(p=>p.id===currentPcId);
     const raw = localStorage.getItem(keyFor(currentPcId));
 
+    // Defaults
     if(!raw){
       hpCur.value = pc?.core?.maxHp ?? "";
       inv.value = "";
       notes.value = "";
       conds.value = "";
 
+      // clear slots/resources/spells
       document.querySelectorAll(".slot input").forEach(cb=>cb.checked=false);
       document.querySelectorAll("[data-resource]").forEach(cb=>cb.checked=false);
+      document.querySelectorAll("[data-spellpick]").forEach(cb=>cb.checked=false);
 
       syncSlotVisuals();
       updateHpPill();
@@ -666,14 +847,22 @@
       notes.value = st.notes ?? "";
       conds.value = st.conds ?? "";
 
+      // slots
       const slotState = st.slots || {};
       document.querySelectorAll(".slot input").forEach(cb=>{
         cb.checked = !!slotState[cb.dataset.slot];
       });
 
+      // resources
       const resState = st.resources || {};
       document.querySelectorAll("[data-resource]").forEach(cb=>{
         cb.checked = !!resState[cb.dataset.resource];
+      });
+
+      // spells pick
+      const spellPickState = st.spellPick || {};
+      document.querySelectorAll("[data-spellpick]").forEach(cb=>{
+        cb.checked = !!spellPickState[cb.dataset.spellpick];
       });
 
       syncSlotVisuals();
@@ -697,38 +886,24 @@
       resState[cb.dataset.resource] = !!cb.checked;
     });
 
+    const spellPickState = {};
+    document.querySelectorAll("[data-spellpick]").forEach(cb=>{
+      spellPickState[cb.dataset.spellpick] = !!cb.checked;
+    });
+
     const st = {
       hpCur: hpCur.value,
       inv: inv.value,
       notes: notes.value,
       conds: conds.value,
       slots: slotState,
-      resources: resState
+      resources: resState,
+      spellPick: spellPickState
     };
 
     localStorage.setItem(keyFor(currentPcId), JSON.stringify(st));
     syncSlotVisuals();
     updateHpPill();
-  }
-
-  function renderMagic(pc){
-    const hasMagic = (pc.spells && (pc.spells.l1 || pc.spells.l2)) || (pc.spellList && pc.spellList.length) || (pc.cantrips && pc.cantrips.length);
-    if(!hasMagic){
-      magicBox.hidden = true;
-      return;
-    }
-
-    magicBox.hidden = false;
-
-    const bits = [];
-    if(pc.cls?.toLowerCase().includes("cleric")) bits.push("Prepared list shown");
-    if(pc.cls?.toLowerCase().includes("paladin")) bits.push("Prepared list shown");
-    if(pc.cls?.toLowerCase().includes("bard")) bits.push("Known list shown");
-    if(pc.cls?.toLowerCase().includes("ranger")) bits.push("Known list shown");
-    magicHint.textContent = bits.length ? bits.join(" • ") : "";
-
-    setListEl(cantripsUl, pc.cantrips || []);
-    setListEl(spellsUl, pc.spellList || []);
   }
 
   function render(id){
@@ -764,12 +939,11 @@
     setList("attacks", pc.attacks);
     setList("feats", pc.feats);
 
-    renderMagic(pc);
-
-    if(pc.spells){
+    // spell slots
+    if(pc.spellSlots){
       spellBox.hidden = false;
-      const l1 = pc.spells.l1 || 0;
-      const l2 = pc.spells.l2 || 0;
+      const l1 = pc.spellSlots.l1 || 0;
+      const l2 = pc.spellSlots.l2 || 0;
 
       spellHint.textContent = `Level 1: ${l1} slot(s)` + (l2 ? ` • Level 2: ${l2} slot(s)` : "");
       lineL1.hidden = (l1 <= 0);
@@ -783,8 +957,16 @@
       slotsL2.innerHTML = "";
     }
 
-    buildResources(pc);
+    ResourcesModule.build(pc);
+    buildSpells(pc);
+
     load();
+
+    // enforce after load (in case older state exceeds choose count)
+    if(pc.spellPick?.choose){
+      enforceSpellPickLimit(pc.spellPick.choose);
+      save();
+    }
   }
 
   function doShortRest(){
@@ -792,6 +974,7 @@
     const pc = PCS.find(p=>p.id===currentPcId);
     if(!pc) return;
 
+    // Uncheck all resources that reset on short rest
     document.querySelectorAll("[data-resource]").forEach(cb=>{
       const rKey = cb.dataset.resource;
       const res = (pc.resources||[]).find(r=>r.key===rKey);
@@ -807,9 +990,13 @@
     const pc = PCS.find(p=>p.id===currentPcId);
     if(!pc) return;
 
+    // Reset ALL resources
     document.querySelectorAll("[data-resource]").forEach(cb=>cb.checked=false);
+
+    // Reset spell slots
     document.querySelectorAll(".slot input").forEach(cb=>cb.checked=false);
 
+    // Optionally restore HP
     const restore = confirm("Long Rest applied.\n\nRestore HP to max?");
     if(restore){
       hpCur.value = pc.core?.maxHp ?? hpCur.value;
@@ -819,6 +1006,7 @@
     alert("Long Rest applied:\n- Resources reset\n- Spell slots reset\n- HP " + (restore ? "restored to max" : "unchanged"));
   }
 
+  // ===== events =====
   select.addEventListener("change", () => render(select.value));
   [hpCur, inv, notes, conds].forEach(x => x.addEventListener("input", save));
 
