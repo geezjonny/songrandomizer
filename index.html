@@ -1,920 +1,1118 @@
+<!-- File: index.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Party Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>D&D Session Tracker</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 16px; line-height: 1.25; }
-    .row { display: flex; gap: 16px; flex-wrap: wrap; }
-    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; min-width: 280px; flex: 1; }
-    h1 { font-size: 18px; margin: 0 0 10px; }
-    h2 { font-size: 14px; margin: 12px 0 8px; }
-    .muted { color: #666; font-size: 12px; }
-    label { display: block; font-size: 12px; margin: 8px 0 4px; color: #333; }
-    input[type="number"], select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
-    textarea { min-height: 100px; }
-    button { padding: 8px 10px; border: 1px solid #bbb; border-radius: 8px; background: #f7f7f7; cursor: pointer; }
-    button:hover { background: #f0f0f0; }
-    .pill { display: inline-block; padding: 2px 8px; border: 1px solid #ddd; border-radius: 999px; font-size: 12px; margin-right: 6px; }
-    .grid { display: grid; gap: 8px; }
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    :root { color-scheme: dark light; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 18px; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    h2 { font-size: 16px; margin: 18px 0 10px; }
+    .muted { opacity: .78; font-size: 12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .pill { font-size: 12px; padding: 4px 8px; border-radius: 999px; border: 1px solid rgba(127,127,127,.35); opacity: .9; }
+    .hidden { display: none; }
+
+    .card { border: 1px solid rgba(127,127,127,.35); border-radius: 12px; padding: 14px; background: rgba(127,127,127,.06); }
+
+    .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+    button {
+      padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(127,127,127,.35);
+      background: rgba(127,127,127,.10); cursor: pointer; font-weight: 700;
+    }
+    button:hover { background: rgba(127,127,127,.18); }
+
+    input[type="text"], input[type="number"], textarea, select {
+      width: 100%; box-sizing: border-box; padding: 10px; border-radius: 10px;
+      border: 1px solid rgba(127,127,127,.35); background: transparent; font-size: 14px;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+
+    .panelTitle { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kv3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .divider { height: 1px; background: rgba(127,127,127,.25); margin: 12px 0; }
+
+    .hpRead { font-size: 28px; font-weight: 900; }
+    .hpRead small { font-size: 14px; opacity: .8; font-weight: 800; }
+    .hpControls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+    .mini {
+      border: 1px dashed rgba(127,127,127,.35);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .mini h3 { margin: 0 0 8px; font-size: 13px; letter-spacing: .2px; }
+
     .list { display: grid; gap: 8px; }
-    .item { border: 1px solid #eee; border-radius: 10px; padding: 8px; }
-    .item b { display: inline-block; margin-right: 6px; }
-    .checkboxes { display: flex; flex-wrap: wrap; gap: 8px; }
-    .slot { display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid #eee; border-radius: 999px; font-size: 12px; }
-    .kpi { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .kpi > div { padding: 6px 10px; border: 1px solid #eee; border-radius: 10px; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New"; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .row4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+    @media (max-width: 980px) { .row4 { grid-template-columns: 1fr 1fr; } }
+
+    .checks { display: flex; flex-wrap: wrap; gap: 8px; }
+    .checkPill {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid rgba(127,127,127,.35); border-radius: 999px;
+      padding: 6px 10px; user-select: none;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid rgba(127,127,127,.25); }
+    th { font-size: 12px; opacity: .85; }
+
+    .slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+    .slotGroup { border: 1px dashed rgba(127,127,127,.35); border-radius: 12px; padding: 10px; }
+    .slotTitle { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .footer { margin-top: 14px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   </style>
 </head>
 <body>
-  <h1>Party Session Tracker</h1>
-#  <div class="muted">Character sheet data is prefilled; per-session state saves automatically per character in this browser.</div>
-
-  <div class="row" style="margin-top:12px;">
-    <div class="card" style="flex:2;">
-      <h2>Pick Character</h2>
-      <div class="grid2">
-        <div>
-          <label>Character</label>
-          <select id="pcSelect"></select>
-        </div>
-        <div>
-          <label>Quick Actions</label>
-          <div class="kpi">
-            <button id="btnFullHeal" title="Sets current HP to max">Full Heal</button>
-            <button id="btnShortRest" title="Resets short-rest resources + (optional) spell slots if you want that rule">Short Rest</button>
-            <button id="btnLongRest" title="Resets long-rest resources + spell slots + sets HP to max">Long Rest</button>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top:10px;" class="kpi">
-        <div><b id="pcName">—</b> <span class="muted" id="pcMeta"></span></div>
-        <div>AC: <b id="pcAC">—</b></div>
-        <div>Speed: <b id="pcSpeed">—</b> ft</div>
-        <div>Prof: <b id="pcProf">—</b></div>
-      </div>
-
-      <div class="grid2" style="margin-top:10px;">
-        <div class="card" style="border-color:#eee;">
-          <h2>HP</h2>
-          <div class="grid2">
-            <div>
-              <label>Current HP</label>
-              <input id="hpCurrent" type="number" min="0" />
-            </div>
-            <div>
-              <label>Max HP</label>
-              <input id="hpMax" type="number" min="1" />
-            </div>
-          </div>
-          <div class="muted" style="margin-top:8px;">Current HP auto-saves.</div>
-        </div>
-
-        <div class="card" style="border-color:#eee;">
-          <h2>Primary Info</h2>
-          <div id="primaryPills"></div>
-          <div class="muted" style="margin-top:8px;" id="aboutRumorHint">ABOUT/RUMOR are in the sheet data.</div>
-        </div>
-      </div>
-
-      <div id="magicBlock" class="card" style="margin-top:10px; display:none;">
-        <h2>Magic</h2>
-        <div id="magicSummary" class="muted"></div>
-
-        <div style="margin-top:10px;">
-          <h2>Spell Slots</h2>
-          <div id="spellSlotsUI" class="checkboxes"></div>
-          <div class="muted" style="margin-top:6px;">
-            Slots follow standard 5e for Level 2: Cleric = 3×1st; Paladin = 2×1st; Bard = 3×1st; Ranger = 2×1st.
-          </div>
-        </div>
-
-        <div id="cantripsBlock" style="margin-top:12px; display:none;">
-          <h2>Cantrips</h2>
-          <div id="cantripsList" class="list"></div>
-        </div>
-
-        <div style="margin-top:12px;">
-          <h2 id="spellsChooserTitle">Spells</h2>
-          <div class="muted" id="spellsChooserHint"></div>
-          <div id="spellsChooser" class="list" style="margin-top:8px;"></div>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:10px;">
-        <div class="card">
-          <h2>Attacks</h2>
-          <div id="attacksList" class="list"></div>
-        </div>
-        <div class="card">
-          <h2>Features & Resources</h2>
-          <div id="featuresList" class="list"></div>
-        </div>
-      </div>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>D&D Session Tracker</h1>
+      <div id="statusPill" class="pill">Setup</div>
     </div>
 
-    <div class="card">
-      <h2>Inventory</h2>
-      <textarea id="inventoryText" placeholder="Add items as you get them..."></textarea>
-
-      <h2 style="margin-top:12px;">Notes</h2>
-      <textarea id="notesText" placeholder="Session notes..."></textarea>
-
-      <div class="muted" style="margin-top:10px;">
-        Everything here saves automatically per character in this browser.
+    <!-- SETUP -->
+    <section id="setup" class="card hidden">
+      <h2>Open a character</h2>
+      <div class="kv">
+        <div>
+          <label for="setupKey">Character key (from link: ?pc=KEY)</label>
+          <input id="setupKey" type="text" placeholder="e.g., seris" />
+          <div class="muted">If the character has no saved session yet, it will seed from presets (if present).</div>
+        </div>
+        <div>
+          <label for="setupName">Or enter name (local save key)</label>
+          <input id="setupName" type="text" placeholder="e.g., Seris Dawnblade" />
+          <div class="muted">Name-based load is fallback if you don’t use presets.</div>
+        </div>
       </div>
-    </div>
+
+      <div class="btns" style="margin-top:10px;">
+        <button id="btnOpen">Open</button>
+      </div>
+
+      <div class="divider"></div>
+      <div class="muted">
+        Preset keys available on this page:
+        <span class="mono" id="presetKeys">—</span>
+      </div>
+    </section>
+
+    <!-- APP -->
+    <section id="app" class="card hidden">
+      <div class="topbar">
+        <div>
+          <div style="font-size:18px;font-weight:900;">
+            <span id="charName">—</span>
+            <span class="muted">· Level <span id="charLevel">—</span> <span id="charClassRace"></span></span>
+          </div>
+          <div class="muted">
+            Save key: <span class="mono" id="saveKey">—</span> · Last saved: <span id="lastSaved">—</span>
+          </div>
+        </div>
+        <div class="btns">
+          <button id="btnLongRest">Long Rest</button>
+          <button id="btnSwitch">Switch</button>
+          <button id="btnReset">Reset Character</button>
+          <button id="btnExport">Export JSON</button>
+          <button id="btnImport">Import JSON</button>
+          <input id="fileImport" type="file" accept="application/json" class="hidden" />
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:12px;">
+        <!-- LEFT COLUMN -->
+        <div class="list">
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>Vitals</h3>
+              <span class="muted">Editable</span>
+            </div>
+
+            <div class="row2">
+              <div>
+                <label for="inputClass">Class</label>
+                <input id="inputClass" type="text" />
+              </div>
+              <div>
+                <label for="inputRace">Race</label>
+                <input id="inputRace" type="text" />
+              </div>
+            </div>
+
+            <div class="row4" style="margin-top:10px;">
+              <div>
+                <label for="inputLevel">Level</label>
+                <input id="inputLevel" type="number" min="1" max="20" />
+              </div>
+              <div>
+                <label for="inputProf">Prof Bonus</label>
+                <input id="inputProf" type="number" />
+              </div>
+              <div>
+                <label for="inputAc">AC</label>
+                <input id="inputAc" type="number" min="0" />
+              </div>
+              <div>
+                <label for="inputSpeed">Speed (ft)</label>
+                <input id="inputSpeed" type="number" min="0" />
+              </div>
+            </div>
+
+            <div class="row3" style="margin-top:10px;">
+              <div>
+                <label for="inputInit">Initiative</label>
+                <input id="inputInit" type="number" />
+              </div>
+              <div>
+                <label for="inputMaxHp">Max HP</label>
+                <input id="inputMaxHp" type="number" min="1" />
+              </div>
+              <div>
+                <label for="inputCurrentHp">Current HP</label>
+                <input id="inputCurrentHp" type="number" min="0" />
+              </div>
+            </div>
+
+            <div class="row2" style="margin-top:10px; align-items:end;">
+              <div class="hpRead">
+                <span id="hpCurrent">0</span> <small>/ <span id="hpMax">0</span></small>
+              </div>
+              <div class="hpControls">
+                <button data-hp="-5">-5</button>
+                <button data-hp="-1">-1</button>
+                <button data-hp="+1">+1</button>
+                <button data-hp="+5">+5</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>Ability Scores</h3>
+              <span class="muted">Mods auto-calc</span>
+            </div>
+            <div class="row3">
+              <div><label for="abStr">STR</label><input id="abStr" type="number" min="1" max="30" /></div>
+              <div><label for="abDex">DEX</label><input id="abDex" type="number" min="1" max="30" /></div>
+              <div><label for="abCon">CON</label><input id="abCon" type="number" min="1" max="30" /></div>
+              <div><label for="abInt">INT</label><input id="abInt" type="number" min="1" max="30" /></div>
+              <div><label for="abWis">WIS</label><input id="abWis" type="number" min="1" max="30" /></div>
+              <div><label for="abCha">CHA</label><input id="abCha" type="number" min="1" max="30" /></div>
+            </div>
+            <div class="divider"></div>
+            <div class="row3">
+              <div class="muted">STR mod: <span class="mono" id="modStr">+0</span></div>
+              <div class="muted">DEX mod: <span class="mono" id="modDex">+0</span></div>
+              <div class="muted">CON mod: <span class="mono" id="modCon">+0</span></div>
+              <div class="muted">INT mod: <span class="mono" id="modInt">+0</span></div>
+              <div class="muted">WIS mod: <span class="mono" id="modWis">+0</span></div>
+              <div class="muted">CHA mod: <span class="mono" id="modCha">+0</span></div>
+            </div>
+          </div>
+
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>Saves & Skills</h3>
+              <span class="muted">Toggle prof/expertise</span>
+            </div>
+
+            <h2 style="margin:10px 0 6px;">Saving Throws</h2>
+            <table id="savesTable"></table>
+
+            <h2 style="margin:14px 0 6px;">Skills</h2>
+            <table id="skillsTable"></table>
+          </div>
+        </div>
+
+        <!-- MIDDLE COLUMN -->
+        <div class="list">
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>Attacks</h3>
+              <button id="btnAddAttack" title="Add a new attack">Add</button>
+            </div>
+            <div id="attacksList" class="list"></div>
+          </div>
+
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>Features / Feats</h3>
+              <span class="muted">Text</span>
+            </div>
+            <label for="features">Class features, feats, traits</label>
+            <textarea id="features" placeholder="Second Wind, Action Surge, Fighting Style, etc."></textarea>
+          </div>
+
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>Spell Slots</h3>
+              <span class="muted">Optional</span>
+            </div>
+            <div class="row3">
+              <div>
+                <label for="spellAbility">Spellcasting ability</label>
+                <select id="spellAbility">
+                  <option value="">—</option>
+                  <option value="int">INT</option>
+                  <option value="wis">WIS</option>
+                  <option value="cha">CHA</option>
+                </select>
+              </div>
+              <div>
+                <label for="spellDc">Spell Save DC</label>
+                <input id="spellDc" type="number" min="0" />
+              </div>
+              <div>
+                <label for="spellAtk">Spell Attack</label>
+                <input id="spellAtk" type="number" />
+              </div>
+            </div>
+
+            <div class="divider"></div>
+            <div id="slots" class="slots"></div>
+
+            <div class="divider"></div>
+            <div class="muted">Configure slot maximums (0–9):</div>
+            <div id="slotMaxEditors" class="row3" style="margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="list">
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>About</h3>
+              <span class="muted">Public</span>
+            </div>
+            <label for="about">Short description</label>
+            <textarea id="about"></textarea>
+          </div>
+
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>Rumor</h3>
+              <span class="muted">Private</span>
+            </div>
+            <label for="rumor">Only this player should see</label>
+            <textarea id="rumor"></textarea>
+          </div>
+
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>Backpack</h3>
+              <span class="muted">Inventory</span>
+            </div>
+            <label for="inventory">Items (one per line)</label>
+            <textarea id="inventory" placeholder="- Potion of Healing&#10;- Rope (50 ft)"></textarea>
+          </div>
+
+          <div class="mini">
+            <div class="panelTitle">
+              <h3>Session Notes</h3>
+              <span class="muted">Free-form</span>
+            </div>
+            <label for="notes">Notes</label>
+            <textarea id="notes" placeholder="NPC names, clues, reminders..."></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
-<script>
-/**
- * OPTIMIZED CHARACTER SHEET FORMAT
- * - Avoids hardcoding “spell attack +5 / DC 13” in multiple places.
- * - Fixes the cleric slots issue: L2 cleric has 3x 1st-level slots, no 2nd-level.
- * - Separates "sheet data" (static) from "session state" (saved in localStorage).
- */
-
-const PARTY = {
-  version: "1.1",
-  campaign: "Crystal Faire / Azurite Pointe",
-  characters: [
-    // --- NON-CASTERS / NO SPELLS ---
-    {
-      id: "seris_dawnblade",
-      name: "Seris Dawnblade",
-      class: "Fighter",
-      race: "Human",
-      level: 2,
-      ac: 16,
-      speedFt: 30,
-      profBonus: 2,
-      hp: { max: 20 },
-      attacks: [
-        { name: "Longsword", toHit: 5, damage: "1d8+5", notes: "Melee" }
-      ],
-      features: [
-        { name: "Second Wind", uses: 1, recharge: "short_rest", effect: "Regain 1d10+2 HP" },
-        { name: "Action Surge", uses: 1, recharge: "short_rest", effect: "On your turn, take one extra action" },
-        { name: "Fighting Style: Dueling", effect: "+2 damage with one-handed melee weapon (no off-hand weapon)" }
-      ],
-      about: "A disciplined sword-for-hire escorting a small merchant group to and from the Crystal Faire.",
-      rumor: "You once failed to hold a line. A village burned because you were ordered to retreat."
-    },
-    {
-      id: "sable_thornscar",
-      name: "Sable Thornscar",
-      class: "Fighter",
-      race: "Tiefling",
-      level: 2,
-      ac: 16,
-      speedFt: 30,
-      profBonus: 2,
-      hp: { max: 21 },
-      attacks: [
-        { name: "Greatsword", toHit: 5, damage: "2d6+3", notes: "Melee" },
-        { name: "Handaxe", toHit: 5, damage: "1d6+3", notes: "Thrown 20/60" }
-      ],
-      features: [
-        { name: "Second Wind", uses: 1, recharge: "short_rest", effect: "Regain 1d10+2 HP" },
-        { name: "Action Surge", uses: 1, recharge: "short_rest", effect: "On your turn, take one extra action" },
-        { name: "Fighting Style: Great Weapon Fighting", effect: "Reroll 1s and 2s on damage dice for 2H weapons" }
-      ],
-      about: "A sellsword hired for festival security.",
-      rumor: "You once walked away from a contract that felt wrong, even though the pay was good."
-    },
-    {
-      id: "korrin_ashfang",
-      name: "Korrin Ashfang",
-      class: "Rogue",
-      race: "Half-Orc",
-      level: 2,
-      ac: 14,
-      speedFt: 30,
-      profBonus: 2,
-      hp: { max: 18 },
-      attacks: [
-        { name: "Shortsword", toHit: 5, damage: "1d6+3", notes: "Melee" },
-        { name: "Shortbow", toHit: 5, damage: "1d6+3", notes: "Ranged 80/320" }
-      ],
-      features: [
-        { name: "Sneak Attack", effect: "+1d6 damage 1/turn if you have advantage OR an ally is adjacent to target" },
-        { name: "Cunning Action", effect: "Bonus action: Dash, Disengage, or Hide" }
-      ],
-      about: "Korrin came to the Crystal Faire chasing a rumor that someone she lost long ago may be here.",
-      rumor: "You recognize Ka’el Stormbrew as a soldier tied to a painful memory."
-    },
-    {
-      id: "azrael_cinderborn",
-      name: "Azrael Cinderborn",
-      class: "Barbarian",
-      race: "Tiefling",
-      level: 2,
-      ac: 15,
-      speedFt: 30,
-      profBonus: 2,
-      hp: { max: 25 },
-      attacks: [
-        { name: "Spear", toHit: 6, damage: "1d8+4", notes: "Melee / Thrown 20/60" }
-      ],
-      features: [
-        { name: "Rage", uses: 2, recharge: "long_rest", effect: "Bonus action (1 min): +2 STR damage, resist B/P/S, adv STR checks+saves" },
-        { name: "Reckless Attack", effect: "First attack: gain advantage on STR melee; enemies have advantage to hit you until your next turn" },
-        { name: "Danger Sense", effect: "Advantage on DEX saves vs effects you can see" }
-      ],
-      about: "A fierce warrior who lives on instinct and momentum.",
-      rumor: "You once took a brutal job that left scars you don’t like to talk about."
-    },
-
-    // --- CASTERS / SPELLS ---
-    // IMPORTANT FIX: Cleric L2 has only 1st-level slots (3). No 2nd-level slots yet.
-    // We'll store spell data in one consistent format:
-    // magic: { type: "prepared"|"known", ability: "wis/cha/int", slots: {1:n,2:n...}, choose: n, options:[...] , cantrips:[...] }
-
-    {
-      id: "haldor_brightshield",
-      name: "Haldor Brightshield",
-      class: "Cleric (Life)",
-      race: "Dwarf",
-      level: 2,
-      ac: 18,
-      speedFt: 25,
-      profBonus: 2,
-      hp: { max: 18 },
-      attacks: [
-        { name: "Warhammer", toHit: 4, damage: "1d8+2", notes: "Melee" }
-      ],
-      features: [
-        { name: "Disciple of Life", effect: "Healing spells restore extra HP (2 + spell level)" },
-        { name: "Channel Divinity", uses: 1, recharge: "short_rest", effect: "Choose: Turn Undead OR Preserve Life (heal split 10 HP within 30 ft)" }
-      ],
-      magic: {
-        type: "prepared",
-        ability: "wis",
-        // FIXED:
-        slots: { 1: 3 },
-        choose: 4,
-        cantrips: [
-          { name: "Sacred Flame", cast: "Action", range: "60 ft", effect: "DEX save or take 1d8 radiant" },
-          { name: "Guidance", cast: "Action", range: "Touch", effect: "+1d4 to one ability check (Conc 1 min)" },
-          { name: "Spare the Dying", cast: "Action", range: "Touch", effect: "Creature at 0 HP becomes stable" }
+  <script>
+    /**
+     * ✅ EDIT HERE: prefill your PCs
+     * Key is what you put in the URL: ?pc=<key>
+     */
+    const PRESETS = {
+      seris: {
+        name: "Seris Dawnblade",
+        className: "Fighter",
+        race: "Human",
+        level: 2,
+        profBonus: 2,
+        ac: 16,
+        initiative: 1,
+        speed: 30,
+        maxHp: 20,
+        abilities: { str: 16, dex: 12, con: 14, int: 10, wis: 12, cha: 12 },
+        saves: { str: "prof", con: "prof" }, // "none" | "prof"
+        skills: {
+          athletics: "prof",
+          perception: "prof",
+          intimidation: "prof",
+          // set others to "none" or omit
+        },
+        attacks: [
+          { name: "Longsword (Melee)", toHit: 5, damage: "1d8+5", notes: "" },
         ],
-        options: [
-          { name: "Bless", cast: "Action", range: "30 ft", effect: "Up to 3 allies add +1d4 to attacks & saves (Conc)" },
-          { name: "Cure Wounds", cast: "Action", range: "Touch", effect: "Heal 1d8 + WIS" },
-          { name: "Protection from Evil and Good", cast: "Action", range: "Touch", effect: "Certain creatures have disadvantage; can’t be charmed/frightened/possessed (Conc 10 min)" },
-          { name: "Guiding Bolt", cast: "Action", range: "120 ft", effect: "4d6 radiant; next attack vs target has advantage" },
-          { name: "Healing Word", cast: "Bonus", range: "60 ft", effect: "Heal 1d4 + WIS at range" },
-          { name: "Sanctuary", cast: "Bonus", range: "30 ft", effect: "Enemies must WIS save to attack or choose new target (1 min)" }
-        ]
+        features: "Second Wind (1/Short Rest)\nFighting Style: Dueling\nAction Surge (1/Short Rest)",
+        about: "A disciplined sword-for-hire escorting a small merchant group to and from the Crystal Faire.",
+        rumor: "You once failed to hold a line. A village burned because you were ordered to retreat...",
+        spell: {
+          ability: "",
+          dc: 0,
+          attack: 0,
+          slotMaxByLevel: { 1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0 },
+        },
       },
-      about: "A battle-hardened dwarf of quiet faith.",
-      rumor: "You once healed someone who later committed an unforgivable act."
-    },
+    };
 
-    {
-      id: "ashara_solkindle",
-      name: "Ashara Solkindle",
-      class: "Cleric (Life)",
-      race: "Fire Genasi",
-      level: 2,
-      ac: 16,
-      speedFt: 30,
-      profBonus: 2,
-      hp: { max: 18 },
-      attacks: [
-        { name: "Staff", toHit: 3, damage: "1d8+1", notes: "Melee" }
-      ],
-      features: [
-        { name: "Disciple of Life", effect: "Healing spells restore extra HP (2 + spell level)" },
-        { name: "Channel Divinity", uses: 1, recharge: "short_rest", effect: "Choose: Turn Undead OR Preserve Life (heal split 10 HP within 30 ft)" }
-      ],
-      magic: {
-        type: "prepared",
-        ability: "wis",
-        // FIXED:
-        slots: { 1: 3 },
-        choose: 4,
-        cantrips: [
-          { name: "Sacred Flame", cast: "Action", range: "60 ft", effect: "DEX save or take 1d8 radiant" },
-          { name: "Guidance", cast: "Action", range: "Touch", effect: "+1d4 to one ability check (Conc 1 min)" },
-          { name: "Spare the Dying", cast: "Action", range: "Touch", effect: "Creature at 0 HP becomes stable" }
-        ],
-        options: [
-          { name: "Bless", cast: "Action", range: "30 ft", effect: "Up to 3 allies add +1d4 to attacks & saves (Conc)" },
-          { name: "Cure Wounds", cast: "Action", range: "Touch", effect: "Heal 1d8 + WIS" },
-          { name: "Protection from Evil and Good", cast: "Action", range: "Touch", effect: "Certain creatures have disadvantage; can’t be charmed/frightened/possessed (Conc 10 min)" },
-          { name: "Guiding Bolt", cast: "Action", range: "120 ft", effect: "4d6 radiant; next attack vs target has advantage" },
-          { name: "Healing Word", cast: "Bonus", range: "60 ft", effect: "Heal 1d4 + WIS at range" },
-          { name: "Sanctuary", cast: "Bonus", range: "30 ft", effect: "Enemies must WIS save to attack or choose new target (1 min)" }
-        ]
-      },
-      about: "A hooded healer whose prayers feel like warmth returning to cold hands.",
-      rumor: "Your fate is tied to a powerful wizard turned evil necromancer."
-    },
+    const STORAGE_PREFIX = "dnd-tracker:";
+    const $ = (id) => document.getElementById(id);
 
-    {
-      id: "edrin_valebright",
-      name: "Edrin Valebright",
-      class: "Paladin",
-      race: "Human",
-      level: 2,
-      ac: 19,
-      speedFt: 30,
-      profBonus: 2,
-      hp: { max: 20 },
-      attacks: [
-        { name: "Longsword", toHit: 5, damage: "1d8+3", notes: "Melee" }
-      ],
-      features: [
-        { name: "Lay on Hands", pool: 10, recharge: "long_rest", effect: "Action (touch). Heal from pool of 10 HP/day" },
-        { name: "Divine Smite", effect: "On hit, spend spell slot: +2d8 radiant (+1d8 vs undead/fiends)" }
-      ],
-      magic: {
-        type: "prepared",
-        ability: "cha",
-        slots: { 1: 2 },
-        choose: 3,
-        cantrips: [],
-        options: [
-          { name: "Bless", cast: "Action", range: "30 ft", effect: "Up to 3 allies add +1d4 to attacks & saves (Conc)" },
-          { name: "Command", cast: "Action", range: "60 ft", effect: "1-word command; failed WIS save: target obeys next turn" },
-          { name: "Cure Wounds", cast: "Action", range: "Touch", effect: "Heal 1d8 + CHA" },
-          { name: "Protection from Evil and Good", cast: "Action", range: "Touch", effect: "Certain creatures have disadvantage; can’t be charmed/frightened/possessed (Conc 10 min)" },
-          { name: "Shield of Faith", cast: "Bonus", range: "Self/Ally", effect: "+2 AC (Conc 1 min)" }
-        ]
-      },
-      about: "A young paladin sworn to protect the innocent.",
-      rumor: "You once disobeyed an order to leave civilians behind."
-    },
+    const ui = {
+      setup: $("setup"),
+      app: $("app"),
+      statusPill: $("statusPill"),
+      presetKeys: $("presetKeys"),
 
-    {
-      id: "rurik_goldnote",
-      name: "Rurik Goldnote",
-      class: "Bard",
-      race: "Dwarf",
-      level: 2,
-      ac: 14,
-      speedFt: 25,
-      profBonus: 2,
-      hp: { max: 17 },
-      attacks: [
-        { name: "Rapier", toHit: 3, damage: "1d8+1", notes: "Melee" }
-      ],
-      features: [
-        { name: "Bardic Inspiration", uses: 3, recharge: "long_rest", effect: "Bonus: give ally a d6 for attack/save/check" },
-        { name: "Song of Rest", effect: "During short rest, allies heal +1d6 extra" }
-      ],
-      magic: {
-        type: "known",
-        ability: "cha",
-        slots: { 1: 3 },
-        choose: 2,
-        cantrips: [],
-        options: [
-          { name: "Healing Word", cast: "Bonus", range: "60 ft", effect: "Heal 1d4 + CHA at range" },
-          { name: "Dissonant Whispers", cast: "Action", range: "60 ft", effect: "3d6 psychic; target uses reaction to run away (WIS save)" },
-          { name: "Faerie Fire", cast: "Action", range: "60 ft", effect: "Outline creatures; attacks have advantage; they can’t be invisible (Conc 1 min, DEX save)" },
-          { name: "Sleep", cast: "Action", range: "90 ft", effect: "Put creatures to sleep in an area; best vs weak enemies" },
-          { name: "Tasha’s Hideous Laughter", cast: "Action", range: "30 ft", effect: "Target prone/incapacitated until save (Conc 1 min, WIS save)" },
-          { name: "Detect Magic", cast: "Action", range: "Self", effect: "Sense magic within 30 ft (Conc 10 min)" }
-        ]
-      },
-      about: "A traveling bard picked up by Ka’el’s unit.",
-      rumor: "You overheard soldiers joking about how much digging they do — it didn’t feel like a joke."
-    },
+      setupKey: $("setupKey"),
+      setupName: $("setupName"),
+      btnOpen: $("btnOpen"),
 
-    {
-      id: "lark_thistledown",
-      name: "Lark Thistledown",
-      class: "Bard",
-      race: "Halfling",
-      level: 2,
-      ac: 14,
-      speedFt: 25,
-      profBonus: 2,
-      hp: { max: 15 },
-      attacks: [
-        { name: "Rapier", toHit: 5, damage: "1d8+3", notes: "Melee" }
-      ],
-      features: [
-        { name: "Bardic Inspiration", uses: 3, recharge: "long_rest", effect: "Bonus: give ally a d6 for attack/save/check" },
-        { name: "Song of Rest", effect: "During short rest, allies heal +1d6 extra" }
-      ],
-      magic: {
-        type: "known",
-        ability: "cha",
-        slots: { 1: 3 },
-        choose: 2,
-        cantrips: [],
-        options: [
-          { name: "Healing Word", cast: "Bonus", range: "60 ft", effect: "Heal 1d4 + CHA at range" },
-          { name: "Dissonant Whispers", cast: "Action", range: "60 ft", effect: "3d6 psychic; target uses reaction to run away (WIS save)" },
-          { name: "Faerie Fire", cast: "Action", range: "60 ft", effect: "Outline creatures; attacks have advantage; they can’t be invisible (Conc 1 min, DEX save)" },
-          { name: "Sleep", cast: "Action", range: "90 ft", effect: "Put creatures to sleep in an area; best vs weak enemies" },
-          { name: "Tasha’s Hideous Laughter", cast: "Action", range: "30 ft", effect: "Target prone/incapacitated until save (Conc 1 min, WIS save)" },
-          { name: "Detect Magic", cast: "Action", range: "Self", effect: "Sense magic within 30 ft (Conc 10 min)" }
-        ]
-      },
-      about: "A runaway noble bard.",
-      rumor: "You hid off the road and watched wagons already full of cargo heading into the city."
-    },
+      charName: $("charName"),
+      charLevel: $("charLevel"),
+      charClassRace: $("charClassRace"),
+      saveKey: $("saveKey"),
+      lastSaved: $("lastSaved"),
 
-    {
-      id: "liora_windstep",
-      name: "Liora Windstep",
-      class: "Ranger",
-      race: "Wood Elf",
-      level: 2,
-      ac: 15,
-      speedFt: 30,
-      profBonus: 2,
-      hp: { max: 19 },
-      attacks: [
-        { name: "Longbow", toHit: 5, damage: "1d8+3", notes: "Ranged 150/600" },
-        { name: "Shortsword", toHit: 5, damage: "1d6+3", notes: "Melee" }
-      ],
-      features: [
-        { name: "Favored Enemy", effect: "Advantage tracking / recalling info about undead (per your sheet flavor)" },
-        { name: "Natural Explorer", effect: "Coastal/Forest benefits (per your sheet flavor)" }
-      ],
-      magic: {
-        type: "known",
-        ability: "wis",
-        slots: { 1: 2 },
-        choose: 2,
-        cantrips: [],
-        options: [
-          { name: "Hunter’s Mark", cast: "Bonus", range: "90 ft", effect: "Mark target; +1d6 each hit; advantage tracking (Conc 1 hr)" },
-          { name: "Cure Wounds", cast: "Action", range: "Touch", effect: "Heal 1d8 + WIS" },
-          { name: "Goodberry", cast: "Action", range: "—", effect: "Create 10 berries: each heals 1 HP and counts as a day of food" },
-          { name: "Fog Cloud", cast: "Action", range: "120 ft", effect: "Big cloud blocks vision (Conc 1 hr)" },
-          { name: "Detect Magic", cast: "Action", range: "Self", effect: "Sense magic within 30 ft (Conc 10 min)" },
-          { name: "Snare", cast: "1 minute", range: "25 ft", effect: "Hidden trap; first creature triggers save or restrained & lifted" }
-        ]
-      },
-      about: "A quiet scout watching the horizon as much as people.",
-      rumor: "You’ve been following signs of strange movement in the wilds leading toward the Obelisk."
-    }
-  ]
-};
+      inputClass: $("inputClass"),
+      inputRace: $("inputRace"),
+      inputLevel: $("inputLevel"),
+      inputProf: $("inputProf"),
+      inputAc: $("inputAc"),
+      inputSpeed: $("inputSpeed"),
+      inputInit: $("inputInit"),
+      inputMaxHp: $("inputMaxHp"),
+      inputCurrentHp: $("inputCurrentHp"),
+      hpCurrent: $("hpCurrent"),
+      hpMax: $("hpMax"),
 
-// ---------- STORAGE ----------
-function stateKey(pcId) { return `pc_state_${pcId}`; }
+      abStr: $("abStr"), abDex: $("abDex"), abCon: $("abCon"),
+      abInt: $("abInt"), abWis: $("abWis"), abCha: $("abCha"),
+      modStr: $("modStr"), modDex: $("modDex"), modCon: $("modCon"),
+      modInt: $("modInt"), modWis: $("modWis"), modCha: $("modCha"),
 
-function defaultStateFor(pc) {
-  const state = {
-    currentHp: pc.hp?.max ?? 10,
-    hpMax: pc.hp?.max ?? 10,
-    inventoryText: "",
-    notesText: "",
-    resources: {},          // keyed by feature name
-    spellSlotsUsed: {},     // e.g. { "1": [false,false,false] }
-    chosenSpells: []        // list of spell names (prepared/known selection)
-  };
+      savesTable: $("savesTable"),
+      skillsTable: $("skillsTable"),
 
-  // initialize resources checkboxes/counts
-  (pc.features || []).forEach(f => {
-    if (typeof f.uses === "number") state.resources[f.name] = { usedCount: 0 };
-    if (typeof f.pool === "number") state.resources[f.name] = { poolRemaining: f.pool };
-  });
+      attacksList: $("attacksList"),
+      btnAddAttack: $("btnAddAttack"),
 
-  // initialize slot checkboxes arrays
-  if (pc.magic?.slots) {
-    Object.entries(pc.magic.slots).forEach(([lvl, n]) => {
-      state.spellSlotsUsed[lvl] = Array.from({ length: n }, () => false);
-    });
-  }
+      features: $("features"),
 
-  return state;
-}
+      spellAbility: $("spellAbility"),
+      spellDc: $("spellDc"),
+      spellAtk: $("spellAtk"),
+      slots: $("slots"),
+      slotMaxEditors: $("slotMaxEditors"),
 
-function loadState(pc) {
-  const raw = localStorage.getItem(stateKey(pc.id));
-  if (!raw) return defaultStateFor(pc);
-  try {
-    const parsed = JSON.parse(raw);
-    // merge with defaults to avoid missing keys after schema changes
-    const merged = defaultStateFor(pc);
+      about: $("about"),
+      rumor: $("rumor"),
+      inventory: $("inventory"),
+      notes: $("notes"),
 
-    // keep any persisted content
-    if (typeof parsed.currentHp === "number") merged.currentHp = parsed.currentHp;
-    if (typeof parsed.hpMax === "number") merged.hpMax = parsed.hpMax;
-    if (typeof parsed.inventoryText === "string") merged.inventoryText = parsed.inventoryText;
-    if (typeof parsed.notesText === "string") merged.notesText = parsed.notesText;
-    if (parsed.resources && typeof parsed.resources === "object") merged.resources = { ...merged.resources, ...parsed.resources };
-    if (parsed.spellSlotsUsed && typeof parsed.spellSlotsUsed === "object") merged.spellSlotsUsed = { ...merged.spellSlotsUsed, ...parsed.spellSlotsUsed };
-    if (Array.isArray(parsed.chosenSpells)) merged.chosenSpells = parsed.chosenSpells.slice();
-    return merged;
-  } catch {
-    return defaultStateFor(pc);
-  }
-}
+      btnLongRest: $("btnLongRest"),
+      btnSwitch: $("btnSwitch"),
+      btnReset: $("btnReset"),
+      btnExport: $("btnExport"),
+      btnImport: $("btnImport"),
+      fileImport: $("fileImport"),
+    };
 
-function saveState(pcId, state) {
-  localStorage.setItem(stateKey(pcId), JSON.stringify(state));
-}
+    /** @type {any|null} */
+    let state = null;
 
-// ---------- RENDER ----------
-const el = (id) => document.getElementById(id);
+    const ABILS = /** @type {const} */ (["str","dex","con","int","wis","cha"]);
+    const SAVE_LABEL = { str:"STR", dex:"DEX", con:"CON", int:"INT", wis:"WIS", cha:"CHA" };
 
-let currentPc = null;
-let currentState = null;
+    const SKILLS = [
+      { key:"acrobatics", label:"Acrobatics", abil:"dex" },
+      { key:"animal_handling", label:"Animal Handling", abil:"wis" },
+      { key:"arcana", label:"Arcana", abil:"int" },
+      { key:"athletics", label:"Athletics", abil:"str" },
+      { key:"deception", label:"Deception", abil:"cha" },
+      { key:"history", label:"History", abil:"int" },
+      { key:"insight", label:"Insight", abil:"wis" },
+      { key:"intimidation", label:"Intimidation", abil:"cha" },
+      { key:"investigation", label:"Investigation", abil:"int" },
+      { key:"medicine", label:"Medicine", abil:"wis" },
+      { key:"nature", label:"Nature", abil:"int" },
+      { key:"perception", label:"Perception", abil:"wis" },
+      { key:"performance", label:"Performance", abil:"cha" },
+      { key:"persuasion", label:"Persuasion", abil:"cha" },
+      { key:"religion", label:"Religion", abil:"int" },
+      { key:"sleight_of_hand", label:"Sleight of Hand", abil:"dex" },
+      { key:"stealth", label:"Stealth", abil:"dex" },
+      { key:"survival", label:"Survival", abil:"wis" },
+    ];
 
-function setText(id, txt) { el(id).textContent = txt; }
-function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
-
-function computeSpellNumbers(pc) {
-  // Only show if spellcasting exists
-  if (!pc.magic) return null;
-  const ability = pc.magic.ability; // "wis" / "cha" / ...
-  // We only have simplified “mod” elsewhere; since you’re prefilled sheets, we’ll compute DC/Attack
-  // using a common 5e formula: DC = 8 + prof + abilityMod; Attack = prof + abilityMod
-  // If you want literal sheet values, we can store override fields later.
-  const abilityModMap = pc.abilityMods || null;
-  // If no mods provided, we can’t compute reliably—so we won’t pretend.
-  if (!abilityModMap || typeof abilityModMap[ability] !== "number") {
-    return { dc: null, atk: null };
-  }
-  const mod = abilityModMap[ability];
-  return { dc: 8 + pc.profBonus + mod, atk: pc.profBonus + mod };
-}
-
-function renderPc(pc) {
-  currentPc = pc;
-  currentState = loadState(pc);
-
-  setText("pcName", pc.name);
-  setText("pcMeta", `${pc.race} • ${pc.class} • L${pc.level}`);
-  setText("pcAC", pc.ac ?? "—");
-  setText("pcSpeed", pc.speedFt ?? "—");
-  setText("pcProf", `+${pc.profBonus ?? 0}`);
-
-  // primary pills
-  const pills = el("primaryPills");
-  clear(pills);
-  const pillList = [
-    `HP ${currentState.currentHp}/${currentState.hpMax}`,
-    `AC ${pc.ac ?? "—"}`,
-    `Speed ${pc.speedFt ?? "—"}`
-  ];
-  pillList.forEach(t => {
-    const span = document.createElement("span");
-    span.className = "pill";
-    span.textContent = t;
-    pills.appendChild(span);
-  });
-
-  // HP inputs
-  el("hpCurrent").value = currentState.currentHp;
-  el("hpMax").value = currentState.hpMax;
-
-  // inventory/notes
-  el("inventoryText").value = currentState.inventoryText;
-  el("notesText").value = currentState.notesText;
-
-  // attacks
-  const atkList = el("attacksList");
-  clear(atkList);
-  (pc.attacks || []).forEach(a => {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `<div><b>${a.name}</b> <span class="muted">${a.notes ?? ""}</span></div>
-      <div class="mono">To Hit: +${a.toHit} • Damage: ${a.damage}</div>`;
-    atkList.appendChild(div);
-  });
-
-  // features/resources
-  const featList = el("featuresList");
-  clear(featList);
-  (pc.features || []).forEach(f => {
-    const div = document.createElement("div");
-    div.className = "item";
-
-    const top = document.createElement("div");
-    top.innerHTML = `<b>${f.name}</b> <span class="muted">${f.recharge ? `(${f.recharge.replace("_"," ")})` : ""}</span>`;
-    div.appendChild(top);
-
-    const eff = document.createElement("div");
-    eff.className = "muted";
-    eff.textContent = f.effect ?? "";
-    div.appendChild(eff);
-
-    // resource controls if uses/pool exist
-    const controls = document.createElement("div");
-    controls.style.marginTop = "8px";
-
-    if (typeof f.uses === "number") {
-      const st = currentState.resources[f.name] || { usedCount: 0 };
-      currentState.resources[f.name] = st;
-
-      const used = document.createElement("input");
-      used.type = "number";
-      used.min = 0;
-      used.max = f.uses;
-      used.value = st.usedCount ?? 0;
-
-      const lbl = document.createElement("span");
-      lbl.className = "muted";
-      lbl.textContent = `Used (max ${f.uses})`;
-
-      used.addEventListener("input", () => {
-        const v = Math.max(0, Math.min(f.uses, Number(used.value || 0)));
-        st.usedCount = v;
-        saveState(pc.id, currentState);
-      });
-
-      const wrap = document.createElement("div");
-      wrap.className = "grid2";
-      wrap.appendChild(used);
-      wrap.appendChild(lbl);
-      controls.appendChild(wrap);
-      div.appendChild(controls);
+    function saveKeyForName(name) {
+      return `${STORAGE_PREFIX}${String(name).trim().toLowerCase()}`;
     }
 
-    if (typeof f.pool === "number") {
-      const st = currentState.resources[f.name] || { poolRemaining: f.pool };
-      currentState.resources[f.name] = st;
+    function nowIso() { return new Date().toISOString(); }
+    function formatLocalTime(iso) { try { return new Date(iso).toLocaleString(); } catch { return "—"; } }
+    function clampInt(n, min, max) {
+      const x = Number.isFinite(n) ? Math.trunc(n) : min;
+      return Math.max(min, Math.min(max, x));
+    }
+    function modFromScore(score) { return Math.floor((score - 10) / 2); }
+    function fmtSigned(n) { return (n >= 0 ? "+" : "") + String(n); }
 
-      const pool = document.createElement("input");
-      pool.type = "number";
-      pool.min = 0;
-      pool.max = f.pool;
-      pool.value = st.poolRemaining ?? f.pool;
-
-      const lbl = document.createElement("span");
-      lbl.className = "muted";
-      lbl.textContent = `Remaining (max ${f.pool})`;
-
-      pool.addEventListener("input", () => {
-        const v = Math.max(0, Math.min(f.pool, Number(pool.value || 0)));
-        st.poolRemaining = v;
-        saveState(pc.id, currentState);
-      });
-
-      const wrap = document.createElement("div");
-      wrap.className = "grid2";
-      wrap.appendChild(pool);
-      wrap.appendChild(lbl);
-      controls.appendChild(wrap);
-      div.appendChild(controls);
+    function debounce(fn, ms) {
+      let t = null;
+      return (...args) => {
+        if (t) clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
     }
 
-    featList.appendChild(div);
-  });
+    function setView(view) {
+      ui.setup.classList.toggle("hidden", view !== "setup");
+      ui.app.classList.toggle("hidden", view !== "app");
+    }
 
-  // magic
-  const magicBlock = el("magicBlock");
-  const hasMagic = !!pc.magic;
-  magicBlock.style.display = hasMagic ? "block" : "none";
+    function parsePcKeyFromUrl() {
+      const u = new URL(window.location.href);
+      return (u.searchParams.get("pc") || "").trim();
+    }
 
-  if (hasMagic) {
-    // summary
-    const m = pc.magic;
-    const knownOrPrepared = m.type === "prepared" ? "Prepared" : "Known";
-    setText("magicSummary", `${knownOrPrepared} caster • Spell ability: ${m.ability.toUpperCase()}`);
+    function setUrlPcKey(pcKey) {
+      const u = new URL(window.location.href);
+      if (pcKey) u.searchParams.set("pc", pcKey);
+      history.replaceState(null, "", u.toString());
+    }
 
-    // spell slots UI
-    const slotsUI = el("spellSlotsUI");
-    clear(slotsUI);
-
-    Object.entries(m.slots || {}).forEach(([lvl, n]) => {
-      const arr = currentState.spellSlotsUsed[lvl] || Array.from({ length: n }, () => false);
-      // normalize length
-      currentState.spellSlotsUsed[lvl] = arr.slice(0, n);
-      while (currentState.spellSlotsUsed[lvl].length < n) currentState.spellSlotsUsed[lvl].push(false);
-
-      for (let i = 0; i < n; i++) {
-        const wrap = document.createElement("label");
-        wrap.className = "slot";
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.checked = !!currentState.spellSlotsUsed[lvl][i];
-
-        cb.addEventListener("change", () => {
-          currentState.spellSlotsUsed[lvl][i] = cb.checked;
-          saveState(pc.id, currentState);
-        });
-
-        const txt = document.createElement("span");
-        txt.textContent = `L${lvl} Slot ${i + 1}`;
-
-        wrap.appendChild(cb);
-        wrap.appendChild(txt);
-        slotsUI.appendChild(wrap);
+    function buildStateFromPreset(pcKey, preset) {
+      const slotMaxByLevel = preset?.spell?.slotMaxByLevel || {};
+      const spellSlots = {};
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        const max = clampInt(Number(slotMaxByLevel[lvl] ?? 0), 0, 99);
+        spellSlots[String(lvl)] = { max, used: Array.from({ length: max }, () => false) };
       }
-    });
 
-    // cantrips
-    const cantripsBlock = el("cantripsBlock");
-    const cantripsList = el("cantripsList");
-    clear(cantripsList);
+      const abilities = preset.abilities || { str:10,dex:10,con:10,int:10,wis:10,cha:10 };
 
-    if (Array.isArray(m.cantrips) && m.cantrips.length > 0) {
-      cantripsBlock.style.display = "block";
-      m.cantrips.forEach(c => {
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `<div><b>${c.name}</b> <span class="muted">${c.cast ?? ""} • ${c.range ?? ""}</span></div>
-                         <div class="muted">${c.effect ?? ""}</div>`;
-        cantripsList.appendChild(div);
-      });
-    } else {
-      cantripsBlock.style.display = "none";
+      return {
+        version: 2,
+        pcKey: pcKey || "",
+        name: preset.name || "",
+        className: preset.className || "",
+        race: preset.race || "",
+        level: clampInt(Number(preset.level ?? 1), 1, 20),
+        profBonus: clampInt(Number(preset.profBonus ?? 2), -10, 20),
+
+        ac: clampInt(Number(preset.ac ?? 10), 0, 99),
+        initiative: clampInt(Number(preset.initiative ?? 0), -30, 30),
+        speed: clampInt(Number(preset.speed ?? 30), 0, 999),
+
+        maxHp: clampInt(Number(preset.maxHp ?? 1), 1, 9999),
+        currentHp: clampInt(Number(preset.maxHp ?? 1), 0, 9999),
+
+        abilities: {
+          str: clampInt(Number(abilities.str ?? 10), 1, 30),
+          dex: clampInt(Number(abilities.dex ?? 10), 1, 30),
+          con: clampInt(Number(abilities.con ?? 10), 1, 30),
+          int: clampInt(Number(abilities.int ?? 10), 1, 30),
+          wis: clampInt(Number(abilities.wis ?? 10), 1, 30),
+          cha: clampInt(Number(abilities.cha ?? 10), 1, 30),
+        },
+
+        saves: preset.saves || {},          // { str: "prof" }
+        skills: preset.skills || {},        // { athletics: "prof" | "expert" }
+
+        attacks: Array.isArray(preset.attacks) ? preset.attacks : [],
+        features: preset.features || "",
+
+        about: preset.about || "",
+        rumor: preset.rumor || "",
+
+        spell: {
+          ability: preset?.spell?.ability || "",
+          dc: clampInt(Number(preset?.spell?.dc ?? 0), 0, 50),
+          attack: clampInt(Number(preset?.spell?.attack ?? 0), -50, 50),
+          spellSlots,
+        },
+
+        inventory: "",
+        notes: "",
+        updatedAt: nowIso(),
+      };
     }
 
-    // spells chooser
-    const chooser = el("spellsChooser");
-    clear(chooser);
+    function migrateAndNormalize(s) {
+      // Accept older shapes; normalize into version 2
+      const v = Number(s?.version ?? 1);
+      if (v === 2) {
+        const out = structuredClone(s);
+        out.name = String(out.name ?? "").trim();
+        out.level = clampInt(Number(out.level ?? 1), 1, 20);
+        out.profBonus = clampInt(Number(out.profBonus ?? 2), -10, 20);
+        out.maxHp = clampInt(Number(out.maxHp ?? 1), 1, 9999);
+        out.currentHp = clampInt(Number(out.currentHp ?? out.maxHp), 0, out.maxHp);
+        out.ac = clampInt(Number(out.ac ?? 10), 0, 99);
+        out.initiative = clampInt(Number(out.initiative ?? 0), -30, 30);
+        out.speed = clampInt(Number(out.speed ?? 30), 0, 999);
 
-    const chooseN = m.choose ?? 0;
-    const title = (m.type === "prepared")
-      ? `Prepared Spells — choose ${chooseN}`
-      : `Spells Known — choose ${chooseN}`;
-    setText("spellsChooserTitle", title);
-    setText("spellsChooserHint", "Tap to select. Your choices auto-save.");
+        out.abilities = out.abilities || {};
+        for (const a of ABILS) out.abilities[a] = clampInt(Number(out.abilities[a] ?? 10), 1, 30);
 
-    // normalize chosen spells
-    if (!Array.isArray(currentState.chosenSpells)) currentState.chosenSpells = [];
-    // If old state contains spells not in options, keep them but they won’t render (safe).
-    const options = m.options || [];
+        out.saves = out.saves || {};
+        out.skills = out.skills || {};
+        out.attacks = Array.isArray(out.attacks) ? out.attacks : [];
+        out.spell = out.spell || { ability:"", dc:0, attack:0, spellSlots:{} };
+        out.spell.spellSlots = out.spell.spellSlots || {};
 
-    options.forEach(sp => {
-      const div = document.createElement("div");
-      div.className = "item";
+        for (let lvl = 1; lvl <= 9; lvl++) {
+          const k = String(lvl);
+          const group = out.spell.spellSlots[k] || { max: 0, used: [] };
+          const max = clampInt(Number(group.max ?? 0), 0, 99);
+          const usedArr = Array.isArray(group.used) ? group.used.map(Boolean) : [];
+          out.spell.spellSlots[k] = { max, used: Array.from({ length: max }, (_, i) => Boolean(usedArr[i] ?? false)) };
+        }
 
-      const isChecked = currentState.chosenSpells.includes(sp.name);
+        out.inventory = String(out.inventory ?? "");
+        out.notes = String(out.notes ?? "");
+        out.updatedAt = String(out.updatedAt ?? nowIso());
+        return out;
+      }
 
-      const row = document.createElement("div");
-      row.className = "grid2";
+      // v1 → v2 best-effort
+      const pcKey = String(s?.pcKey ?? "");
+      const preset = pcKey && PRESETS[pcKey] ? PRESETS[pcKey] : null;
+      const base = preset ? buildStateFromPreset(pcKey, preset) : buildStateFromPreset("", { name: String(s?.name ?? "Unknown") });
 
-      const left = document.createElement("div");
-      left.innerHTML = `<b>${sp.name}</b><div class="muted">${sp.cast ?? ""} • ${sp.range ?? ""}</div>`;
+      base.maxHp = clampInt(Number(s?.maxHp ?? base.maxHp), 1, 9999);
+      base.currentHp = clampInt(Number(s?.currentHp ?? base.maxHp), 0, base.maxHp);
+      base.inventory = String(s?.inventory ?? "");
+      base.notes = String(s?.notes ?? "");
+      base.updatedAt = String(s?.updatedAt ?? nowIso());
+      return base;
+    }
 
-      const right = document.createElement("div");
-      right.style.textAlign = "right";
+    function loadStateByName(name) {
+      const key = saveKeyForName(name);
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      try { return migrateAndNormalize(JSON.parse(raw)); } catch { return null; }
+    }
 
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = isChecked;
+    function persistState() {
+      if (!state) return;
+      const key = saveKeyForName(state.name);
+      state.updatedAt = nowIso();
+      localStorage.setItem(key, JSON.stringify(state));
+      ui.lastSaved.textContent = formatLocalTime(state.updatedAt);
+      ui.saveKey.textContent = key;
+      ui.statusPill.textContent = "Saved";
+    }
+    const persistStateDebounced = debounce(persistState, 250);
 
-      cb.addEventListener("change", () => {
-        const selected = new Set(currentState.chosenSpells);
-        if (cb.checked) selected.add(sp.name);
-        else selected.delete(sp.name);
+    function recalcAndRenderDerived() {
+      if (!state) return;
+      const mods = {};
+      for (const a of ABILS) mods[a] = modFromScore(state.abilities[a]);
 
-        // enforce choose limit
-        const arr = Array.from(selected);
-        if (chooseN > 0 && arr.length > chooseN) {
-          cb.checked = false;
+      ui.modStr.textContent = fmtSigned(mods.str);
+      ui.modDex.textContent = fmtSigned(mods.dex);
+      ui.modCon.textContent = fmtSigned(mods.con);
+      ui.modInt.textContent = fmtSigned(mods.int);
+      ui.modWis.textContent = fmtSigned(mods.wis);
+      ui.modCha.textContent = fmtSigned(mods.cha);
+
+      renderSaves(mods);
+      renderSkills(mods);
+    }
+
+    function profValue(kind) {
+      // "none" | "prof" | "expert"
+      if (kind === "expert") return 2;
+      if (kind === "prof") return 1;
+      return 0;
+    }
+
+    function renderSaves(mods) {
+      const pb = Number(state.profBonus) || 0;
+      ui.savesTable.innerHTML = `
+        <tr><th>Save</th><th>Prof?</th><th>Total</th></tr>
+        ${ABILS.map((a) => {
+          const kind = state.saves[a] || "none";
+          const total = mods[a] + pb * profValue(kind);
+          return `
+            <tr>
+              <td>${SAVE_LABEL[a]}</td>
+              <td>
+                <label class="checkPill">
+                  <input type="checkbox" data-save-prof="${a}" ${kind === "prof" ? "checked" : ""}>
+                  Proficient
+                </label>
+              </td>
+              <td class="mono">${fmtSigned(total)}</td>
+            </tr>
+          `;
+        }).join("")}
+      `;
+    }
+
+    function renderSkills(mods) {
+      const pb = Number(state.profBonus) || 0;
+      ui.skillsTable.innerHTML = `
+        <tr><th>Skill</th><th>Ability</th><th>Prof</th><th>Expert</th><th>Total</th></tr>
+        ${SKILLS.map((s) => {
+          const kind = state.skills[s.key] || "none";
+          const total = mods[s.abil] + pb * profValue(kind);
+          return `
+            <tr>
+              <td>${s.label}</td>
+              <td class="mono">${s.abil.toUpperCase()}</td>
+              <td>
+                <input type="radio" name="skill_${s.key}" data-skill="${s.key}" value="prof" ${kind === "prof" ? "checked" : ""}>
+              </td>
+              <td>
+                <input type="radio" name="skill_${s.key}" data-skill="${s.key}" value="expert" ${kind === "expert" ? "checked" : ""}>
+              </td>
+              <td class="mono">${fmtSigned(total)}</td>
+            </tr>
+          `;
+        }).join("")}
+      `;
+
+      // add a "none" option implicitly by clicking already-checked radio? not possible → add clear button row:
+      // keep UI simple: allow clearing via context menu is annoying; add a separate toggle handler below using alt-click.
+      ui.skillsTable.querySelectorAll('input[type="radio"][data-skill]').forEach((r) => {
+        r.addEventListener("click", (e) => {
+          if (!state) return;
+          const el = /** @type {HTMLInputElement} */ (e.currentTarget);
+          const key = el.getAttribute("data-skill");
+          const val = el.value;
+          if (!key) return;
+
+          // alt-click to clear to none (quick)
+          if (e.altKey) {
+            delete state.skills[key];
+            recalcAndRenderDerived();
+            ui.statusPill.textContent = "Unsaved";
+            persistStateDebounced();
+            return;
+          }
+
+          state.skills[key] = val;
+          recalcAndRenderDerived();
+          ui.statusPill.textContent = "Unsaved";
+          persistStateDebounced();
+        });
+      });
+    }
+
+    function renderAttacks() {
+      ui.attacksList.innerHTML = "";
+      const list = Array.isArray(state.attacks) ? state.attacks : [];
+      if (!list.length) {
+        const div = document.createElement("div");
+        div.className = "muted";
+        div.textContent = "No attacks yet. Click Add.";
+        ui.attacksList.appendChild(div);
+        return;
+      }
+
+      list.forEach((atk, idx) => {
+        const box = document.createElement("div");
+        box.className = "mini";
+        box.innerHTML = `
+          <div class="panelTitle">
+            <h3>Attack ${idx + 1}</h3>
+            <button data-del-attack="${idx}" title="Delete this attack">Delete</button>
+          </div>
+          <div class="row2">
+            <div>
+              <label>Name</label>
+              <input type="text" data-atk="${idx}" data-field="name" value="${escapeHtml(atk.name || "")}">
+            </div>
+            <div class="row2">
+              <div>
+                <label>To Hit</label>
+                <input type="number" data-atk="${idx}" data-field="toHit" value="${Number(atk.toHit ?? 0)}">
+              </div>
+              <div>
+                <label>Damage</label>
+                <input type="text" data-atk="${idx}" data-field="damage" value="${escapeHtml(atk.damage || "")}">
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <label>Notes</label>
+            <input type="text" data-atk="${idx}" data-field="notes" value="${escapeHtml(atk.notes || "")}">
+          </div>
+        `;
+        ui.attacksList.appendChild(box);
+      });
+
+      ui.attacksList.querySelectorAll("button[data-del-attack]").forEach((b) => {
+        b.addEventListener("click", (e) => {
+          const idx = Number(e.currentTarget.getAttribute("data-del-attack"));
+          state.attacks.splice(idx, 1);
+          renderAttacks();
+          ui.statusPill.textContent = "Unsaved";
+          persistStateDebounced();
+        });
+      });
+
+      ui.attacksList.querySelectorAll("input[data-atk]").forEach((inp) => {
+        inp.addEventListener("input", (e) => {
+          const el = /** @type {HTMLInputElement} */ (e.currentTarget);
+          const idx = Number(el.getAttribute("data-atk"));
+          const field = el.getAttribute("data-field");
+          if (!Number.isFinite(idx) || !field) return;
+          const atk = state.attacks[idx];
+          if (!atk) return;
+
+          atk[field] = field === "toHit" ? clampInt(Number(el.value), -50, 50) : el.value;
+          ui.statusPill.textContent = "Unsaved";
+          persistStateDebounced();
+        });
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderSlots() {
+      ui.slots.innerHTML = "";
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        const k = String(lvl);
+        const group = state.spell.spellSlots[k];
+        if (!group || group.max <= 0) continue;
+
+        const box = document.createElement("div");
+        box.className = "slotGroup";
+        box.innerHTML = `
+          <div class="slotTitle">
+            <div><strong>Level ${lvl}</strong> <span class="muted">(${group.used.filter(Boolean).length}/${group.max} used)</span></div>
+            <button data-slot-reset="${k}">Clear</button>
+          </div>
+          <div class="checks" style="margin-top:8px;">
+            ${group.used.map((used, idx) => `
+              <label class="checkPill">
+                <input type="checkbox" data-slot="${k}" data-slot-idx="${idx}" ${used ? "checked" : ""}/>
+                Slot ${idx + 1}
+              </label>
+            `).join("")}
+          </div>
+        `;
+        ui.slots.appendChild(box);
+      }
+
+      if (!ui.slots.children.length) {
+        const empty = document.createElement("div");
+        empty.className = "muted";
+        empty.textContent = "No spell slots configured.";
+        ui.slots.appendChild(empty);
+      }
+
+      ui.slots.querySelectorAll('input[type="checkbox"][data-slot]').forEach((c) => {
+        c.addEventListener("change", (e) => {
+          const el = /** @type {HTMLInputElement} */ (e.currentTarget);
+          const lvl = el.getAttribute("data-slot");
+          const idx = Number(el.getAttribute("data-slot-idx"));
+          if (!lvl || !Number.isFinite(idx)) return;
+          state.spell.spellSlots[lvl].used[idx] = el.checked;
+          renderSlots();
+          ui.statusPill.textContent = "Unsaved";
+          persistStateDebounced();
+        });
+      });
+
+      ui.slots.querySelectorAll("button[data-slot-reset]").forEach((b) => {
+        b.addEventListener("click", (e) => {
+          const lvl = e.currentTarget.getAttribute("data-slot-reset");
+          if (!lvl) return;
+          state.spell.spellSlots[lvl].used = state.spell.spellSlots[lvl].used.map(() => false);
+          renderSlots();
+          ui.statusPill.textContent = "Unsaved";
+          persistStateDebounced();
+        });
+      });
+    }
+
+    function renderSlotMaxEditors() {
+      ui.slotMaxEditors.innerHTML = "";
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        const k = String(lvl);
+        const wrap = document.createElement("div");
+        wrap.innerHTML = `
+          <label for="slotMax_${k}">Lvl ${k}</label>
+          <input id="slotMax_${k}" type="number" min="0" max="99" value="${Number(state.spell.spellSlots[k].max)}" />
+        `;
+        ui.slotMaxEditors.appendChild(wrap);
+
+        wrap.querySelector("input").addEventListener("input", (e) => {
+          const max = clampInt(Number(e.currentTarget.value), 0, 99);
+          const used = state.spell.spellSlots[k].used || [];
+          state.spell.spellSlots[k].max = max;
+          state.spell.spellSlots[k].used = Array.from({ length: max }, (_, i) => Boolean(used[i] ?? false));
+          renderSlots();
+          ui.statusPill.textContent = "Unsaved";
+          persistStateDebounced();
+        });
+      }
+    }
+
+    function renderApp() {
+      ui.charName.textContent = state.name;
+      ui.charLevel.textContent = String(state.level);
+      ui.charClassRace.textContent = `· ${state.className || ""}${state.race ? " (" + state.race + ")" : ""}`;
+
+      ui.inputClass.value = state.className || "";
+      ui.inputRace.value = state.race || "";
+      ui.inputLevel.value = String(state.level);
+      ui.inputProf.value = String(state.profBonus);
+      ui.inputAc.value = String(state.ac);
+      ui.inputSpeed.value = String(state.speed);
+      ui.inputInit.value = String(state.initiative);
+
+      ui.inputMaxHp.value = String(state.maxHp);
+      ui.inputCurrentHp.value = String(state.currentHp);
+      ui.hpMax.textContent = String(state.maxHp);
+      ui.hpCurrent.textContent = String(state.currentHp);
+
+      ui.abStr.value = String(state.abilities.str);
+      ui.abDex.value = String(state.abilities.dex);
+      ui.abCon.value = String(state.abilities.con);
+      ui.abInt.value = String(state.abilities.int);
+      ui.abWis.value = String(state.abilities.wis);
+      ui.abCha.value = String(state.abilities.cha);
+
+      ui.features.value = state.features || "";
+      ui.about.value = state.about || "";
+      ui.rumor.value = state.rumor || "";
+      ui.inventory.value = state.inventory || "";
+      ui.notes.value = state.notes || "";
+
+      ui.spellAbility.value = state.spell.ability || "";
+      ui.spellDc.value = String(state.spell.dc || 0);
+      ui.spellAtk.value = String(state.spell.attack || 0);
+
+      ui.lastSaved.textContent = formatLocalTime(state.updatedAt);
+      ui.saveKey.textContent = saveKeyForName(state.name);
+
+      renderAttacks();
+      renderSlots();
+      renderSlotMaxEditors();
+      recalcAndRenderDerived();
+      ui.statusPill.textContent = "Loaded";
+    }
+
+    function applyHpDelta(delta) {
+      state.currentHp = clampInt(state.currentHp + delta, 0, state.maxHp);
+      ui.inputCurrentHp.value = String(state.currentHp);
+      ui.hpCurrent.textContent = String(state.currentHp);
+      ui.statusPill.textContent = "Unsaved";
+      persistStateDebounced();
+    }
+
+    function attachHandlers() {
+      document.querySelectorAll("button[data-hp]").forEach((btn) => {
+        btn.addEventListener("click", () => applyHpDelta(Number(btn.getAttribute("data-hp"))));
+      });
+
+      function bindInput(el, setter) {
+        el.addEventListener("input", () => {
+          setter();
+          ui.statusPill.textContent = "Unsaved";
+          persistStateDebounced();
+        });
+      }
+
+      bindInput(ui.inputClass, () => { state.className = ui.inputClass.value; ui.charClassRace.textContent = `· ${state.className || ""}${state.race ? " (" + state.race + ")" : ""}`; });
+      bindInput(ui.inputRace, () => { state.race = ui.inputRace.value; ui.charClassRace.textContent = `· ${state.className || ""}${state.race ? " (" + state.race + ")" : ""}`; });
+      bindInput(ui.inputLevel, () => { state.level = clampInt(Number(ui.inputLevel.value), 1, 20); ui.charLevel.textContent = String(state.level); });
+      bindInput(ui.inputProf, () => { state.profBonus = clampInt(Number(ui.inputProf.value), -10, 20); recalcAndRenderDerived(); });
+      bindInput(ui.inputAc, () => { state.ac = clampInt(Number(ui.inputAc.value), 0, 99); });
+      bindInput(ui.inputSpeed, () => { state.speed = clampInt(Number(ui.inputSpeed.value), 0, 999); });
+      bindInput(ui.inputInit, () => { state.initiative = clampInt(Number(ui.inputInit.value), -30, 30); });
+
+      bindInput(ui.inputMaxHp, () => {
+        state.maxHp = clampInt(Number(ui.inputMaxHp.value), 1, 9999);
+        state.currentHp = clampInt(state.currentHp, 0, state.maxHp);
+        ui.hpMax.textContent = String(state.maxHp);
+        ui.inputCurrentHp.value = String(state.currentHp);
+        ui.hpCurrent.textContent = String(state.currentHp);
+      });
+
+      bindInput(ui.inputCurrentHp, () => {
+        state.currentHp = clampInt(Number(ui.inputCurrentHp.value), 0, state.maxHp);
+        ui.hpCurrent.textContent = String(state.currentHp);
+      });
+
+      const abilBindings = [
+        [ui.abStr, "str"], [ui.abDex, "dex"], [ui.abCon, "con"],
+        [ui.abInt, "int"], [ui.abWis, "wis"], [ui.abCha, "cha"],
+      ];
+      abilBindings.forEach(([el, key]) => bindInput(el, () => {
+        state.abilities[key] = clampInt(Number(el.value), 1, 30);
+        recalcAndRenderDerived();
+      }));
+
+      ui.savesTable.addEventListener("change", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLInputElement)) return;
+        const a = t.getAttribute("data-save-prof");
+        if (!a) return;
+        state.saves[a] = t.checked ? "prof" : "none";
+        recalcAndRenderDerived();
+        ui.statusPill.textContent = "Unsaved";
+        persistStateDebounced();
+      });
+
+      bindInput(ui.features, () => { state.features = ui.features.value; });
+      bindInput(ui.about, () => { state.about = ui.about.value; });
+      bindInput(ui.rumor, () => { state.rumor = ui.rumor.value; });
+      bindInput(ui.inventory, () => { state.inventory = ui.inventory.value; });
+      bindInput(ui.notes, () => { state.notes = ui.notes.value; });
+
+      bindInput(ui.spellAbility, () => { state.spell.ability = ui.spellAbility.value; });
+      bindInput(ui.spellDc, () => { state.spell.dc = clampInt(Number(ui.spellDc.value), 0, 50); });
+      bindInput(ui.spellAtk, () => { state.spell.attack = clampInt(Number(ui.spellAtk.value), -50, 50); });
+
+      ui.btnAddAttack.addEventListener("click", () => {
+        state.attacks.push({ name: "New Attack", toHit: 0, damage: "", notes: "" });
+        renderAttacks();
+        ui.statusPill.textContent = "Unsaved";
+        persistStateDebounced();
+      });
+
+      ui.btnLongRest.addEventListener("click", () => {
+        state.currentHp = state.maxHp;
+        for (let lvl = 1; lvl <= 9; lvl++) {
+          const k = String(lvl);
+          state.spell.spellSlots[k].used = state.spell.spellSlots[k].used.map(() => false);
+        }
+        renderApp();
+        ui.statusPill.textContent = "Unsaved";
+        persistStateDebounced();
+      });
+
+      ui.btnSwitch.addEventListener("click", () => {
+        state = null;
+        ui.statusPill.textContent = "Setup";
+        setView("setup");
+      });
+
+      ui.btnReset.addEventListener("click", () => {
+        if (!state) return;
+        localStorage.removeItem(saveKeyForName(state.name));
+        state = null;
+        ui.statusPill.textContent = "Deleted";
+        setView("setup");
+      });
+
+      ui.btnExport.addEventListener("click", () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${state.name.replace(/\s+/g, "_")}_save.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      ui.btnImport.addEventListener("click", () => ui.fileImport.click());
+      ui.fileImport.addEventListener("change", async () => {
+        const file = ui.fileImport.files?.[0];
+        ui.fileImport.value = "";
+        if (!file) return;
+        try {
+          const text = await file.text();
+          state = migrateAndNormalize(JSON.parse(text));
+          persistState();
+          setView("app");
+          renderApp();
+        } catch (err) {
+          alert("Import failed: " + (err?.message || String(err)));
+        }
+      });
+
+      ui.btnOpen.addEventListener("click", () => openFromSetup());
+    }
+
+    function openFromSetup() {
+      const pcKey = ui.setupKey.value.trim();
+      const name = ui.setupName.value.trim();
+
+      // Priority: pcKey preset → saved by that preset name → else seed preset
+      if (pcKey) {
+        const preset = PRESETS[pcKey];
+        if (!preset) {
+          alert(`Unknown preset key: ${pcKey}`);
           return;
         }
 
-        currentState.chosenSpells = arr;
-        saveState(pc.id, currentState);
-      });
+        const existing = loadStateByName(preset.name);
+        state = existing || buildStateFromPreset(pcKey, preset);
+        setUrlPcKey(pcKey);
+        persistState();
+        setView("app");
+        renderApp();
+        return;
+      }
 
-      right.appendChild(cb);
+      // Fallback: name-only
+      if (!name) {
+        alert("Enter a preset key (?pc=...) or a name.");
+        return;
+      }
 
-      row.appendChild(left);
-      row.appendChild(right);
-      div.appendChild(row);
-
-      const eff = document.createElement("div");
-      eff.className = "muted";
-      eff.textContent = sp.effect ?? "";
-      div.appendChild(eff);
-
-      chooser.appendChild(div);
-    });
-
-    // persist state after render normalization
-    saveState(pc.id, currentState);
-  }
-
-  // hook listeners (HP/inventory/notes)
-  el("hpCurrent").oninput = () => {
-    currentState.currentHp = Number(el("hpCurrent").value || 0);
-    saveState(pc.id, currentState);
-    renderPrimaryHpPill();
-  };
-
-  el("hpMax").oninput = () => {
-    currentState.hpMax = Math.max(1, Number(el("hpMax").value || 1));
-    saveState(pc.id, currentState);
-    renderPrimaryHpPill();
-  };
-
-  el("inventoryText").oninput = () => {
-    currentState.inventoryText = el("inventoryText").value;
-    saveState(pc.id, currentState);
-  };
-
-  el("notesText").oninput = () => {
-    currentState.notesText = el("notesText").value;
-    saveState(pc.id, currentState);
-  };
-}
-
-function renderPrimaryHpPill() {
-  // update the first pill only
-  const pills = el("primaryPills");
-  if (!pills.firstChild) return;
-  pills.firstChild.textContent = `HP ${currentState.currentHp}/${currentState.hpMax}`;
-}
-
-// ---------- REST BUTTONS ----------
-function doFullHeal() {
-  if (!currentPc) return;
-  currentState.currentHp = currentState.hpMax;
-  el("hpCurrent").value = currentState.currentHp;
-  saveState(currentPc.id, currentState);
-  renderPrimaryHpPill();
-}
-
-function doShortRest() {
-  if (!currentPc) return;
-
-  // reset resources with recharge short_rest
-  (currentPc.features || []).forEach(f => {
-    if (f.recharge === "short_rest" && typeof f.uses === "number") {
-      const st = currentState.resources[f.name];
-      if (st) st.usedCount = 0;
+      const existing = loadStateByName(name);
+      state = existing || buildStateFromPreset("", { name });
+      persistState();
+      setView("app");
+      renderApp();
     }
-    if (f.recharge === "short_rest" && typeof f.pool === "number") {
-      const st = currentState.resources[f.name];
-      if (st) st.poolRemaining = f.pool;
+
+    function boot() {
+      ui.presetKeys.textContent = Object.keys(PRESETS).length ? Object.keys(PRESETS).join(", ") : "—";
+      attachHandlers();
+
+      const urlPc = parsePcKeyFromUrl();
+      if (urlPc && PRESETS[urlPc]) {
+        ui.setupKey.value = urlPc;
+        const preset = PRESETS[urlPc];
+        const existing = loadStateByName(preset.name);
+        state = existing || buildStateFromPreset(urlPc, preset);
+        persistState();
+        setView("app");
+        renderApp();
+        ui.statusPill.textContent = "Loaded from link";
+        return;
+      }
+
+      setView("setup");
     }
-  });
 
-  // NOTE: In standard 5e, spell slots do NOT come back on short rest (unless features say otherwise).
-  // Keeping slots as-is.
-
-  saveState(currentPc.id, currentState);
-  renderPc(currentPc);
-}
-
-function doLongRest() {
-  if (!currentPc) return;
-
-  // full HP
-  currentState.currentHp = currentState.hpMax;
-
-  // reset all resources that are "long_rest" or "short_rest" or "day"
-  (currentPc.features || []).forEach(f => {
-    const r = f.recharge;
-    if ((r === "long_rest" || r === "day" || r === "short_rest") && typeof f.uses === "number") {
-      const st = currentState.resources[f.name];
-      if (st) st.usedCount = 0;
-    }
-    if ((r === "long_rest" || r === "day" || r === "short_rest") && typeof f.pool === "number") {
-      const st = currentState.resources[f.name];
-      if (st) st.poolRemaining = f.pool;
-    }
-  });
-
-  // reset spell slots
-  if (currentPc.magic?.slots) {
-    Object.entries(currentPc.magic.slots).forEach(([lvl, n]) => {
-      currentState.spellSlotsUsed[lvl] = Array.from({ length: n }, () => false);
-    });
-  }
-
-  saveState(currentPc.id, currentState);
-  renderPc(currentPc);
-}
-
-// ---------- INIT ----------
-function init() {
-  const sel = el("pcSelect");
-  clear(sel);
-
-  PARTY.characters.forEach(pc => {
-    const opt = document.createElement("option");
-    opt.value = pc.id;
-    opt.textContent = pc.name;
-    sel.appendChild(opt);
-  });
-
-  sel.addEventListener("change", () => {
-    const pc = PARTY.characters.find(c => c.id === sel.value);
-    if (pc) renderPc(pc);
-  });
-
-  el("btnFullHeal").addEventListener("click", doFullHeal);
-  el("btnShortRest").addEventListener("click", doShortRest);
-  el("btnLongRest").addEventListener("click", doLongRest);
-
-  // Default to first character
-  const first = PARTY.characters[0];
-  sel.value = first.id;
-  renderPc(first);
-}
-
-init();
-</script>
+    boot();
+  </script>
 </body>
 </html>
