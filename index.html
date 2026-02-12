@@ -7,11 +7,11 @@
   <style>
     :root{
       --bg:#0f0c0a;
-      --card:#17120e;
       --ink:#f4efe7;
       --muted:#cbbca7;
       --line:rgba(255,255,255,.14);
       --accent: rgba(42,166,164,.9);
+      --danger: rgba(192,57,43,.35);
     }
     body{
       margin:0;
@@ -21,7 +21,7 @@
                   linear-gradient(180deg, #241a12, var(--bg));
       padding: 16px;
     }
-    .wrap{max-width:980px;margin:0 auto;}
+    .wrap{max-width:1020px;margin:0 auto;}
     h1{margin:0 0 10px;font-size:20px;letter-spacing:.2px}
     .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin: 10px 0 14px;}
     select{
@@ -31,8 +31,20 @@
       border: 1px solid var(--line);
       background: rgba(255,255,255,.08);
       color: var(--ink);
-      font-weight: 900;
+      font-weight: 950;
     }
+    .btn{
+      border:1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      color:#fff;
+      border-radius: 12px;
+      padding:10px 12px;
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .btn:hover{background: rgba(255,255,255,.12)}
+    .btn.danger{border-color: rgba(192,57,43,.55); background: rgba(192,57,43,.18)}
+    .btn.danger:hover{background: rgba(192,57,43,.26)}
     .card{
       border:1px solid var(--line);
       background: rgba(0,0,0,.22);
@@ -40,8 +52,8 @@
       padding: 14px;
       box-shadow: 0 12px 28px rgba(0,0,0,.25);
     }
-    .name{font-size:22px;font-weight:950;margin:0 0 4px}
-    .sub{color:var(--muted);font-weight:800;margin:0 0 12px}
+    .name{font-size:22px;font-weight:1000;margin:0 0 4px}
+    .sub{color:var(--muted);font-weight:850;margin:0 0 12px}
     .grid{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -65,13 +77,13 @@
 
     .kv{display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px dashed rgba(255,255,255,.10);}
     .kv:last-child{border-bottom:none;}
-    .k{color:rgba(244,239,231,.9); font-weight:850;}
-    .v{color:rgba(244,239,231,.95); font-weight:950;}
+    .k{color:rgba(244,239,231,.9); font-weight:900;}
+    .v{color:rgba(244,239,231,.95); font-weight:1000;}
 
     ul{margin:0; padding-left:18px}
     li{margin:6px 0}
 
-    .muted{color:var(--muted); font-weight:750}
+    .muted{color:var(--muted); font-weight:800}
 
     .inputs{
       display:grid;
@@ -93,19 +105,21 @@
       outline:none;
     }
     textarea{min-height:110px; resize: vertical;}
-    .label{font-weight:900; margin: 0 0 6px; color: rgba(244,239,231,.92)}
-    .hpRow{display:flex; gap:10px; align-items:end}
-    .hpRow > div{flex:1}
+    .label{font-weight:950; margin: 0 0 6px; color: rgba(244,239,231,.92)}
     .pill{
       display:inline-block;
       padding: 6px 10px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.06);
-      font-weight: 900;
+      font-weight: 1000;
       color: rgba(244,239,231,.95);
     }
-    .slots{display:flex; gap:8px; flex-wrap:wrap; margin-top: 8px;}
+
+    .slotsWrap{margin-top:8px}
+    .slotsLine{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin: 8px 0;}
+    .slotsLabel{min-width:92px; font-weight:950; color: rgba(244,239,231,.92)}
+    .slots{display:flex; gap:8px; flex-wrap:wrap;}
     .slot{
       width: 18px; height: 18px;
       border-radius: 6px;
@@ -116,19 +130,42 @@
     }
     .slot input{position:absolute; inset:0; opacity:0;}
     .slot.on{background: var(--accent);}
+
+    .resources, .conditions{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .checkrow{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      border-radius: 12px;
+      padding: 10px 10px;
+    }
+    .checkrow input[type="checkbox"]{transform: scale(1.2); margin-top: 2px;}
+    .checkrow .title{font-weight:1000}
+    .checkrow .desc{color: rgba(255,255,255,.78); font-weight:750; margin-top:2px; line-height:1.25}
+    .infoBtn{
+      margin-left:auto;
+      border:1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08);
+      color:#fff;
+      width:28px; height:28px;
+      border-radius: 10px;
+      font-weight: 1000;
+      cursor:pointer;
+      flex: 0 0 auto;
+    }
+    .infoBtn:hover{background: rgba(255,255,255,.12)}
     .foot{
       margin-top:12px;
       color:rgba(255,255,255,.75);
       font-size:12px;
       line-height:1.35
-    }
-    button{
-      border:1px solid rgba(255,255,255,.22);
-      background: rgba(255,255,255,.08);
-      color:#fff;
-      border-radius: 12px;
-      padding:10px 12px;
-      font-weight: 900;
     }
   </style>
 </head>
@@ -138,7 +175,9 @@
 
   <div class="row">
     <select id="pcSelect" aria-label="Select a character"></select>
-    <button id="resetThis">Reset This PC (this device)</button>
+    <button class="btn" id="shortRest">Short Rest</button>
+    <button class="btn" id="longRest">Long Rest</button>
+    <button class="btn danger" id="resetThis">Reset This PC (this device)</button>
   </div>
 
   <div class="card" id="card" hidden>
@@ -156,7 +195,6 @@
         <div class="kv"><div class="k">Init</div><div class="v" id="init"></div></div>
         <div class="kv"><div class="k">Prof</div><div class="v" id="prof"></div></div>
         <div class="kv"><div class="k">Max HP</div><div class="v" id="maxhp"></div></div>
-
         <div style="margin-top:10px">
           <span class="pill" id="hpPill">HP: —</span>
         </div>
@@ -193,10 +231,19 @@
       </div>
 
       <div class="box" id="spellBox" hidden>
-        <h3>Spell Slots (tap to use)</h3>
+        <h3>Spell Slots</h3>
         <div class="muted" id="spellHint"></div>
-        <div class="slots" id="slotsL1"></div>
-        <div class="slots" id="slotsL2"></div>
+        <div class="slotsWrap">
+          <div class="slotsLine" id="lineL1" hidden>
+            <div class="slotsLabel">Level 1</div>
+            <div class="slots" id="slotsL1"></div>
+          </div>
+          <div class="slotsLine" id="lineL2" hidden>
+            <div class="slotsLabel">Level 2</div>
+            <div class="slots" id="slotsL2"></div>
+          </div>
+        </div>
+        <div class="foot">Tap diamonds to mark used slots. (Spell slots reset on Long Rest.)</div>
       </div>
 
       <div class="box">
@@ -220,13 +267,23 @@
 
           <div>
             <div class="label">Conditions / Reminders</div>
-            <textarea id="conds" placeholder="Poisoned, Exhaustion, Rage uses, Inspiration..."></textarea>
+            <textarea id="conds" placeholder="Exhaustion level, Rage uses, Inspiration, etc."></textarea>
           </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="label">Resources (tap to mark used)</div>
+          <div class="resources" id="resources"></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="label">Status Effects (tap ? to read)</div>
+          <div class="conditions" id="conditions"></div>
         </div>
 
         <div class="foot">
           Auto-saves on this device.  
-          (GitHub Pages cannot save to the server without a backend.)
+          (GitHub Pages can’t save to the server without a backend.)
         </div>
       </div>
     </div>
@@ -234,31 +291,46 @@
 </div>
 
 <script>
-  // NOTE:
-  // These are pulled from the sheets you uploaded in this chat.
-  // If a PC is missing here, upload their sheet and I’ll add them.
+  // Status effects (simplified, correct core effect text)
+  const STATUS = [
+    { key:"blinded", name:"Blinded", effect:"You can’t see. You automatically fail sight checks. Attacks against you have advantage. Your attacks have disadvantage." },
+    { key:"charmed", name:"Charmed", effect:"You can’t attack the charmer, and they have advantage on social checks to interact with you." },
+    { key:"deafened", name:"Deafened", effect:"You can’t hear. You automatically fail hearing checks." },
+    { key:"frightened", name:"Frightened", effect:"Disadvantage on checks and attacks while the source is in sight. You can’t willingly move closer to the source." },
+    { key:"grappled", name:"Grappled", effect:"Speed becomes 0. Ends if the grappler is incapacitated or you’re moved away." },
+    { key:"incapacitated", name:"Incapacitated", effect:"You can’t take actions or reactions." },
+    { key:"invisible", name:"Invisible", effect:"You’re unseen. Attacks against you have disadvantage; your attacks have advantage. You can still be detected by noise/tracks/etc." },
+    { key:"paralyzed", name:"Paralyzed", effect:"Incapacitated and can’t move/speak. Auto-fail STR/DEX saves. Attacks against you have advantage; melee hits are crits." },
+    { key:"petrified", name:"Petrified", effect:"Turned to stone. Incapacitated, can’t move/speak. Auto-fail STR/DEX saves. Resistant to damage. Poison/disease paused." },
+    { key:"poisoned", name:"Poisoned", effect:"Disadvantage on attack rolls and ability checks." },
+    { key:"prone", name:"Prone", effect:"Only crawl unless you stand up (costs half speed). Melee attacks against you have advantage; ranged attacks have disadvantage." },
+    { key:"restrained", name:"Restrained", effect:"Speed 0. Attacks against you have advantage; your attacks have disadvantage. Disadvantage on DEX saves." },
+    { key:"stunned", name:"Stunned", effect:"Incapacitated, can’t move/speak. Auto-fail STR/DEX saves. Attacks against you have advantage." },
+    { key:"unconscious", name:"Unconscious", effect:"Incapacitated, prone, unaware. Drop held items. Auto-fail STR/DEX saves. Attacks against you have advantage; melee hits are crits." },
+  ];
 
+  // PARTY DATA (spell slots corrected to standard 5e at level 2)
+  // Cleric L2: 3x L1, 0x L2
+  // Bard L2:   3x L1, 0x L2
+  // Paladin L2:2x L1, 0x L2
+  // Ranger L2: 2x L1, 0x L2
   const PCS = [
     {
-      id:"seris",
-      name:"Seris Dawnblade",
-      race:"Human",
-      cls:"Fighter",
-      level:2,
+      id:"seris", name:"Seris Dawnblade", race:"Human", cls:"Fighter", level:2,
       core:{ ac:16, speed:"30 ft", init:"+1", prof:"+2", maxHp:20 },
       abilities:{ str:"+3", con:"+2", dex:"+1", wis:"+1", int:"+0", cha:"+1" },
       skills:["Athletics +5","Perception +3","Intimidation +3"],
       saves:["Strength +5","Constitution +4"],
       attacks:["Longsword (melee) — To Hit: d20+5 — Damage: 1d8+5"],
       feats:["Second Wind — regain 1d10+2 HP (1/short rest)","Fight Style: Dueling — while using one-handed melee weapon and no other weapons, deal +2 damage","Action Surge — take one extra action (1/short rest)"],
-      spells:null
+      spells:null,
+      resources:[
+        { key:"second_wind", name:"Second Wind", rest:"short", effect:"Regain 1d10+2 HP. (1/Short Rest)" },
+        { key:"action_surge", name:"Action Surge", rest:"short", effect:"Take one extra action on your turn. (1/Short Rest)" },
+      ]
     },
     {
-      id:"sable",
-      name:"Sable Thornscar",
-      race:"Tiefling",
-      cls:"Fighter",
-      level:2,
+      id:"sable", name:"Sable Thornscar", race:"Tiefling", cls:"Fighter", level:2,
       core:{ ac:16, speed:"30 ft", init:"+2", prof:"+2", maxHp:21 },
       abilities:{ str:"+3", con:"+2", dex:"+2", wis:"+0", int:"+0", cha:"+1" },
       skills:["Intimidation +3","Athletics +5","Perception +2"],
@@ -269,17 +341,17 @@
       ],
       feats:[
         "Second Wind — regain 1d10+2 HP (1/short rest)",
-        "Fight Style: Great Weapon Fighting — when you roll a 1 or 2 on damage dice, reroll and use the new result",
+        "Fight Style: Great Weapon Fighting — reroll 1s/2s on damage dice",
         "Action Surge — take one extra action (1/short rest)"
       ],
-      spells:null
+      spells:null,
+      resources:[
+        { key:"second_wind", name:"Second Wind", rest:"short", effect:"Regain 1d10+2 HP. (1/Short Rest)" },
+        { key:"action_surge", name:"Action Surge", rest:"short", effect:"Take one extra action on your turn. (1/Short Rest)" },
+      ]
     },
     {
-      id:"korrin",
-      name:"Korrin Ashfang",
-      race:"Half-Orc",
-      cls:"Rogue",
-      level:2,
+      id:"korrin", name:"Korrin Ashfang", race:"Half-Orc", cls:"Rogue", level:2,
       core:{ ac:14, speed:"30 ft", init:"+3", prof:"+2", maxHp:18 },
       abilities:{ str:"+2", con:"+2", dex:"+3", wis:"+1", int:"+0", cha:"+0" },
       skills:["Stealth +5","Perception +3","Acrobatics +5"],
@@ -289,17 +361,14 @@
         "Shortbow (80/320) — To Hit: d20+5 — Damage: 1d6+3"
       ],
       feats:[
-        "Sneak Attack (1/turn) — if you have advantage OR an ally is next to target, deal +1d6 damage",
-        "Cunning Action — Dash, Disengage, or Hide as a bonus action"
+        "Sneak Attack (1/turn) — advantage OR ally adjacent: +1d6 damage",
+        "Cunning Action — Dash/Disengage/Hide as bonus action"
       ],
-      spells:null
+      spells:null,
+      resources:[]
     },
     {
-      id:"haldor",
-      name:"Haldor Brightshield",
-      race:"Dwarf",
-      cls:"Cleric (Life Domain)",
-      level:2,
+      id:"haldor", name:"Haldor Brightshield", race:"Dwarf", cls:"Cleric (Life Domain)", level:2,
       core:{ ac:18, speed:"25 ft", init:"+0", prof:"+2", maxHp:18 },
       abilities:{ str:"+2", con:"+3", dex:"+0", wis:"+3", int:"+0", cha:"+1" },
       skills:["Medicine +5","Perception +5","Insight +5"],
@@ -309,37 +378,36 @@
         "Light Xbow (80/320) — To Hit: d20+2 — Damage: 1d8"
       ],
       feats:[
-        "Disciple of Life — when you cast a healing spell, restore extra HP (2 + spell level)",
-        "Channel Divinity (1/short rest): Turn Undead (WIS save) OR Preserve Life (split 10 HP within 30 ft)",
+        "Disciple of Life — healing spells restore + (2 + spell level) extra HP",
+        "Channel Divinity (1/short rest): Turn Undead OR Preserve Life (split 10 HP within 30 ft)",
         "Spellcasting (Lvl 2)"
       ],
-      spells:{ l1:2, l2:1 }
+      spells:{ l1:3, l2:0 },
+      resources:[
+        { key:"channel_divinity", name:"Channel Divinity", rest:"short", effect:"Choose Turn Undead or Preserve Life. (1/Short Rest)" },
+      ]
     },
     {
-      id:"ashara",
-      name:"Ashara Solkindle",
-      race:"Fire Genasi",
-      cls:"Cleric (Life Domain)",
-      level:2,
+      id:"ashara", name:"Ashara Solkindle", race:"Fire Genasi", cls:"Cleric (Life Domain)", level:2,
       core:{ ac:16, speed:"30 ft", init:"+0", prof:"+2", maxHp:18 },
       abilities:{ str:"+1", con:"+2", dex:"+1", wis:"+3", int:"+0", cha:"+1" },
       skills:["Medicine +5","Perception +5","Insight +5"],
       saves:["Wisdom +5","Charisma +3"],
       attacks:["Staff (melee) — To Hit: d20+3 — Damage: 1d8+1"],
       feats:[
-        "Disciple of Life — when you cast a healing spell, restore extra HP (2 + spell level)",
-        "Channel Divinity (1/short rest): Turn Undead (WIS save) OR Preserve Life (split 10 HP within 30 ft)",
+        "Disciple of Life — healing spells restore + (2 + spell level) extra HP",
+        "Channel Divinity (1/short rest): Turn Undead OR Preserve Life (split 10 HP within 30 ft)",
         "Warm Hands (1/short rest) — touch a creature to end shivering/fear",
         "Spellcasting (Lvl 2)"
       ],
-      spells:{ l1:2, l2:1 }
+      spells:{ l1:3, l2:0 },
+      resources:[
+        { key:"channel_divinity", name:"Channel Divinity", rest:"short", effect:"Choose Turn Undead or Preserve Life. (1/Short Rest)" },
+        { key:"warm_hands", name:"Warm Hands", rest:"short", effect:"Touch a creature to end shivering/fear. (1/Short Rest)" },
+      ]
     },
     {
-      id:"edrin",
-      name:"Edrin Valebright",
-      race:"Human",
-      cls:"Paladin",
-      level:2,
+      id:"edrin", name:"Edrin Valebright", race:"Human", cls:"Paladin", level:2,
       core:{ ac:19, speed:"30 ft", init:"+0", prof:"+2", maxHp:20 },
       abilities:{ str:"+3", con:"+2", dex:"+0", wis:"+1", int:"+0", cha:"+2" },
       skills:["Athletics +5","Persuasion +4","Insight +3"],
@@ -347,18 +415,17 @@
       attacks:["Longsword (melee) — To Hit: d20+5 — Damage: 1d8+3"],
       feats:[
         "Lay on Hands — heal from a pool of 10 HP / long rest",
-        "Divine Smite — spend a spell slot when you hit to deal +2d8 radiant (+1d8 vs undead/fiends)",
-        "Defense (Fighting Style) — while wearing armor, AC +1 (already added)",
-        "Spellcasting (see page 2)"
+        "Divine Smite — spend a spell slot on a hit for +2d8 radiant (+1d8 vs undead/fiends)",
+        "Defense (Fighting Style) — AC +1 (already added)",
+        "Spellcasting"
       ],
-      spells:{ l1:2, l2:0 }
+      spells:{ l1:2, l2:0 },
+      resources:[
+        { key:"lay_on_hands", name:"Lay on Hands (10 HP pool)", rest:"long", effect:"You have a 10 HP pool per long rest. Spend any amount as an action to heal." },
+      ]
     },
     {
-      id:"rurik",
-      name:"Rurik Goldnote",
-      race:"Dwarf",
-      cls:"Bard",
-      level:2,
+      id:"rurik", name:"Rurik Goldnote", race:"Dwarf", cls:"Bard", level:2,
       core:{ ac:14, speed:"25 ft", init:"+1", prof:"+2", maxHp:17 },
       abilities:{ str:"+1", con:"+2", dex:"+1", wis:"+0", int:"+1", cha:"+3" },
       skills:["Persuasion +5","Performance +5","History +3"],
@@ -373,14 +440,15 @@
         "Song of Rest (d6) — during a short rest, allies heal +1d6 extra",
         "Spellcasting (Lvl 2)"
       ],
-      spells:{ l1:2, l2:1 }
+      spells:{ l1:3, l2:0 },
+      resources:[
+        { key:"bardic_inspiration_1", name:"Bardic Inspiration (use #1)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
+        { key:"bardic_inspiration_2", name:"Bardic Inspiration (use #2)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
+        { key:"bardic_inspiration_3", name:"Bardic Inspiration (use #3)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
+      ]
     },
     {
-      id:"lark",
-      name:"Lark Thistledown",
-      race:"Halfling",
-      cls:"Bard",
-      level:2,
+      id:"lark", name:"Lark Thistledown", race:"Halfling", cls:"Bard", level:2,
       core:{ ac:14, speed:"25 ft", init:"+3", prof:"+2", maxHp:15 },
       abilities:{ str:"-1", con:"+1", dex:"+3", wis:"+1", int:"+0", cha:"+3" },
       skills:["Deception +5","Stealth +5","Perception +3"],
@@ -395,14 +463,15 @@
         "Song of Rest (d6) — during a short rest, allies heal +1d6 extra",
         "Spellcasting (Lvl 2)"
       ],
-      spells:{ l1:2, l2:1 }
+      spells:{ l1:3, l2:0 },
+      resources:[
+        { key:"bardic_inspiration_1", name:"Bardic Inspiration (use #1)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
+        { key:"bardic_inspiration_2", name:"Bardic Inspiration (use #2)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
+        { key:"bardic_inspiration_3", name:"Bardic Inspiration (use #3)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
+      ]
     },
     {
-      id:"liora",
-      name:"Liora Windstep",
-      race:"Wood Elf",
-      cls:"Ranger",
-      level:2,
+      id:"liora", name:"Liora Windstep", race:"Wood Elf", cls:"Ranger", level:2,
       core:{ ac:15, speed:"30 ft", init:"+3", prof:"+2", maxHp:19 },
       abilities:{ str:"+1", con:"+1", dex:"+3", wis:"+2", int:"+0", cha:"+0" },
       skills:["Stealth +5","Perception +4","Survival +4"],
@@ -416,14 +485,11 @@
         "Natural Explorer — Coastal/Forest: ignore difficult terrain and never get lost",
         "Spellcasting (Lvl 2)"
       ],
-      spells:{ l1:2, l2:0 }
+      spells:{ l1:2, l2:0 },
+      resources:[]
     },
     {
-      id:"azrael",
-      name:"Azrael Cinderborn",
-      race:"Tiefling",
-      cls:"Barbarian",
-      level:2,
+      id:"azrael", name:"Azrael Cinderborn", race:"Tiefling", cls:"Barbarian", level:2,
       core:{ ac:15, speed:"30 ft", init:"+2", prof:"+2", maxHp:25 },
       abilities:{ str:"+4", con:"+3", dex:"+2", wis:"+0", int:"-1", cha:"+1" },
       skills:["Intimidation +3","Athletics +6","Survival +2"],
@@ -434,16 +500,20 @@
       ],
       feats:[
         "Rage (2/long rest) — bonus action, 1 min: +2 dmg on STR attacks, adv on STR checks+saves, resist B/P/S",
-        "Reckless Attack — on your first attack each turn, gain advantage; enemies have advantage to hit you until next turn",
+        "Reckless Attack — first attack each turn: advantage; enemies have advantage to hit you until next turn",
         "Danger Sense — advantage on DEX saves vs effects you can see"
       ],
-      spells:null
+      spells:null,
+      resources:[
+        { key:"rage_1", name:"Rage (use #1)", rest:"long", effect:"Bonus action to enter Rage. (2/Long Rest)" },
+        { key:"rage_2", name:"Rage (use #2)", rest:"long", effect:"Bonus action to enter Rage. (2/Long Rest)" },
+      ]
     }
   ];
 
+  // ====== UI WIRING ======
   const select = document.getElementById("pcSelect");
   const card = document.getElementById("card");
-
   const el = (id)=>document.getElementById(id);
 
   const hpCur = el("hpCur");
@@ -455,6 +525,11 @@
   const spellHint = el("spellHint");
   const slotsL1 = el("slotsL1");
   const slotsL2 = el("slotsL2");
+  const lineL1 = el("lineL1");
+  const lineL2 = el("lineL2");
+
+  const resourcesEl = el("resources");
+  const conditionsEl = el("conditions");
 
   let currentPcId = null;
 
@@ -485,7 +560,7 @@
     });
   }
 
-  function renderSlots(container, pcId, levelKey, count){
+  function renderSlots(container, levelKey, count){
     container.innerHTML = "";
     if(!count || count <= 0) return;
 
@@ -508,17 +583,97 @@
     });
   }
 
+  function updateHpPill(){
+    const pc = PCS.find(p=>p.id===currentPcId);
+    const maxHp = pc?.core?.maxHp ?? "—";
+    const cur = hpCur.value || "—";
+    el("hpPill").textContent = `HP: ${cur} / ${maxHp}`;
+  }
+
+  function buildResources(pc){
+    resourcesEl.innerHTML = "";
+    const res = Array.isArray(pc.resources) ? pc.resources : [];
+    if(res.length === 0){
+      resourcesEl.innerHTML = `<div class="muted">—</div>`;
+      return;
+    }
+
+    res.forEach(r=>{
+      const row = document.createElement("div");
+      row.className = "checkrow";
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.dataset.resource = r.key;
+      cb.addEventListener("change", save);
+
+      const text = document.createElement("div");
+      text.innerHTML = `<div class="title">${r.name} <span class="muted">(${r.rest} rest)</span></div>
+                        <div class="desc">${r.effect}</div>`;
+
+      const info = document.createElement("button");
+      info.className = "infoBtn";
+      info.type = "button";
+      info.textContent = "?";
+      info.addEventListener("click", ()=>{
+        alert(`${r.name}\n\n${r.effect}\n\nResets on: ${r.rest} rest`);
+      });
+
+      row.appendChild(cb);
+      row.appendChild(text);
+      row.appendChild(info);
+      resourcesEl.appendChild(row);
+    });
+  }
+
+  function buildConditions(){
+    conditionsEl.innerHTML = "";
+    STATUS.forEach(s=>{
+      const row = document.createElement("div");
+      row.className = "checkrow";
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.dataset.status = s.key;
+      cb.addEventListener("change", save);
+
+      const text = document.createElement("div");
+      text.innerHTML = `<div class="title">${s.name}</div>
+                        <div class="desc">${s.effect}</div>`;
+
+      const info = document.createElement("button");
+      info.className = "infoBtn";
+      info.type = "button";
+      info.textContent = "?";
+      info.addEventListener("click", ()=>{
+        alert(`${s.name}\n\n${s.effect}`);
+      });
+
+      row.appendChild(cb);
+      row.appendChild(text);
+      row.appendChild(info);
+      conditionsEl.appendChild(row);
+    });
+  }
+
   function load(){
     if(!currentPcId) return;
+
+    const pc = PCS.find(p=>p.id===currentPcId);
     const raw = localStorage.getItem(keyFor(currentPcId));
+
     if(!raw){
-      // default HP = max HP
-      const pc = PCS.find(p=>p.id===currentPcId);
+      // defaults
       hpCur.value = pc?.core?.maxHp ?? "";
       inv.value = "";
       notes.value = "";
       conds.value = "";
+
+      // clear slots/resources/status
       document.querySelectorAll(".slot input").forEach(cb=>cb.checked=false);
+      document.querySelectorAll("[data-resource]").forEach(cb=>cb.checked=false);
+      document.querySelectorAll("[data-status]").forEach(cb=>cb.checked=false);
+
       syncSlotVisuals();
       updateHpPill();
       return;
@@ -526,29 +681,54 @@
 
     try{
       const st = JSON.parse(raw);
-      hpCur.value = st.hpCur ?? "";
+      hpCur.value = st.hpCur ?? (pc?.core?.maxHp ?? "");
       inv.value = st.inv ?? "";
       notes.value = st.notes ?? "";
       conds.value = st.conds ?? "";
 
-      // restore slots
+      // slots
       const slotState = st.slots || {};
       document.querySelectorAll(".slot input").forEach(cb=>{
         cb.checked = !!slotState[cb.dataset.slot];
+      });
+
+      // resources
+      const resState = st.resources || {};
+      document.querySelectorAll("[data-resource]").forEach(cb=>{
+        cb.checked = !!resState[cb.dataset.resource];
+      });
+
+      // status
+      const statusState = st.status || {};
+      document.querySelectorAll("[data-status]").forEach(cb=>{
+        cb.checked = !!statusState[cb.dataset.status];
       });
 
       syncSlotVisuals();
       updateHpPill();
     }catch{
       // ignore
+      hpCur.value = pc?.core?.maxHp ?? "";
+      updateHpPill();
     }
   }
 
   function save(){
     if(!currentPcId) return;
+
     const slotState = {};
     document.querySelectorAll(".slot input").forEach(cb=>{
       slotState[cb.dataset.slot] = !!cb.checked;
+    });
+
+    const resState = {};
+    document.querySelectorAll("[data-resource]").forEach(cb=>{
+      resState[cb.dataset.resource] = !!cb.checked;
+    });
+
+    const statusState = {};
+    document.querySelectorAll("[data-status]").forEach(cb=>{
+      statusState[cb.dataset.status] = !!cb.checked;
     });
 
     const st = {
@@ -556,19 +736,14 @@
       inv: inv.value,
       notes: notes.value,
       conds: conds.value,
-      slots: slotState
+      slots: slotState,
+      resources: resState,
+      status: statusState
     };
 
     localStorage.setItem(keyFor(currentPcId), JSON.stringify(st));
     syncSlotVisuals();
     updateHpPill();
-  }
-
-  function updateHpPill(){
-    const pc = PCS.find(p=>p.id===currentPcId);
-    const maxHp = pc?.core?.maxHp ?? "—";
-    const cur = hpCur.value || "—";
-    el("hpPill").textContent = `HP: ${cur} / ${maxHp}`;
   }
 
   function render(id){
@@ -577,7 +752,6 @@
 
     currentPcId = id;
     localStorage.setItem("party_tracker_last_pc", id);
-
     card.hidden = false;
 
     el("name").textContent = pc.name;
@@ -610,18 +784,68 @@
       spellBox.hidden = false;
       const l1 = pc.spells.l1 || 0;
       const l2 = pc.spells.l2 || 0;
-      spellHint.textContent = `Level 1: ${l1} slot(s) • Level 2: ${l2} slot(s)`;
-      renderSlots(slotsL1, pc.id, "L1", l1);
-      renderSlots(slotsL2, pc.id, "L2", l2);
+
+      spellHint.textContent = `Level 1: ${l1} slot(s)` + (l2 ? ` • Level 2: ${l2} slot(s)` : "");
+      lineL1.hidden = (l1 <= 0);
+      lineL2.hidden = (l2 <= 0);
+
+      renderSlots(slotsL1, "L1", l1);
+      renderSlots(slotsL2, "L2", l2);
     }else{
       spellBox.hidden = true;
       slotsL1.innerHTML = "";
       slotsL2.innerHTML = "";
     }
 
+    buildResources(pc);
+    buildConditions();
+
     load();
   }
 
+  function doShortRest(){
+    if(!currentPcId) return;
+    const pc = PCS.find(p=>p.id===currentPcId);
+    if(!pc) return;
+
+    // Uncheck all resources that reset on short rest
+    document.querySelectorAll("[data-resource]").forEach(cb=>{
+      const rKey = cb.dataset.resource;
+      const res = (pc.resources||[]).find(r=>r.key===rKey);
+      if(res?.rest === "short") cb.checked = false;
+    });
+
+    // Song of Rest doesn’t need tracking; spell slots don’t reset on short rest.
+    save();
+    alert("Short Rest applied:\n- Short-rest resources reset.\n- Spell slots unchanged.");
+  }
+
+  function doLongRest(){
+    if(!currentPcId) return;
+    const pc = PCS.find(p=>p.id===currentPcId);
+    if(!pc) return;
+
+    // Reset ALL resources
+    document.querySelectorAll("[data-resource]").forEach(cb=>cb.checked=false);
+
+    // Reset spell slots
+    document.querySelectorAll(".slot input").forEach(cb=>cb.checked=false);
+
+    // Optionally restore HP
+    const restore = confirm("Long Rest applied.\n\nRestore HP to max?");
+    if(restore){
+      hpCur.value = pc.core?.maxHp ?? hpCur.value;
+    }
+
+    // Optionally clear conditions? (I’d personally NOT auto-clear, but you can.)
+    // If you want auto-clear: uncomment next line
+    // document.querySelectorAll("[data-status]").forEach(cb=>cb.checked=false);
+
+    save();
+    alert("Long Rest applied:\n- Resources reset\n- Spell slots reset\n- HP " + (restore ? "restored to max" : "unchanged"));
+  }
+
+  // ===== events =====
   select.addEventListener("change", () => render(select.value));
   [hpCur, inv, notes, conds].forEach(x => x.addEventListener("input", save));
 
@@ -632,6 +856,9 @@
       render(currentPcId);
     }
   });
+
+  document.getElementById("shortRest").addEventListener("click", doShortRest);
+  document.getElementById("longRest").addEventListener("click", doLongRest);
 
   populate();
 </script>
