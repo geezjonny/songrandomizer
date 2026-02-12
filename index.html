@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Crystal Faire — Party Tracker</title>
+  <title>Party Tracker</title>
   <style>
     :root{
       --bg:#0f0c0a;
@@ -210,6 +210,35 @@
         <div class="kv"><div class="k">CHA</div><div class="v" id="cha"></div></div>
       </div>
 
+      <div class="box" id="magicBox" hidden>
+        <h3>Spells & Cantrips</h3>
+        <div class="muted" id="magicHint"></div>
+        <div style="margin-top:8px">
+          <div class="label">Cantrips</div>
+          <ul id="cantrips"></ul>
+        </div>
+        <div style="margin-top:8px">
+          <div class="label">Spells</div>
+          <ul id="spells"></ul>
+        </div>
+      </div>
+
+      <div class="box" id="spellBox" hidden>
+        <h3>Spell Slots</h3>
+        <div class="muted" id="spellHint"></div>
+        <div class="slotsWrap">
+          <div class="slotsLine" id="lineL1" hidden>
+            <div class="slotsLabel">Level 1</div>
+            <div class="slots" id="slotsL1"></div>
+          </div>
+          <div class="slotsLine" id="lineL2" hidden>
+            <div class="slotsLabel">Level 2</div>
+            <div class="slots" id="slotsL2"></div>
+          </div>
+        </div>
+        <div class="foot">Tap diamonds to mark used slots. (Spell slots reset on Long Rest.)</div>
+      </div>
+
       <div class="box">
         <h3>Skills</h3>
         <ul id="skills"></ul>
@@ -228,22 +257,6 @@
       <div class="box">
         <h3>Class Feats</h3>
         <ul id="feats"></ul>
-      </div>
-
-      <div class="box" id="spellBox" hidden>
-        <h3>Spell Slots</h3>
-        <div class="muted" id="spellHint"></div>
-        <div class="slotsWrap">
-          <div class="slotsLine" id="lineL1" hidden>
-            <div class="slotsLabel">Level 1</div>
-            <div class="slots" id="slotsL1"></div>
-          </div>
-          <div class="slotsLine" id="lineL2" hidden>
-            <div class="slotsLabel">Level 2</div>
-            <div class="slots" id="slotsL2"></div>
-          </div>
-        </div>
-        <div class="foot">Tap diamonds to mark used slots. (Spell slots reset on Long Rest.)</div>
       </div>
 
       <div class="box">
@@ -358,6 +371,8 @@
         "Channel Divinity (1/short rest): Turn Undead OR Preserve Life (split 10 HP within 30 ft)",
         "Spellcasting (Lvl 2)"
       ],
+      cantrips: [],
+      spellList: ["Bless","Cure Wounds","Protection from Evil and Good","Guiding Bolt","Healing Word","Sanctuary"],
       spells:{ l1:3, l2:0 },
       resources:[
         { key:"channel_divinity", name:"Channel Divinity", rest:"short", effect:"Choose Turn Undead or Preserve Life. (1/Short Rest)" },
@@ -376,6 +391,8 @@
         "Warm Hands (1/short rest) — touch a creature to end shivering/fear",
         "Spellcasting (Lvl 2)"
       ],
+      cantrips: ["Sacred Flame","Guidance","Spare the Dying"],
+      spellList: ["Bless","Cure Wounds","Protection from Evil and Good","Guiding Bolt","Healing Word","Sanctuary"],
       spells:{ l1:3, l2:0 },
       resources:[
         { key:"channel_divinity", name:"Channel Divinity", rest:"short", effect:"Choose Turn Undead or Preserve Life. (1/Short Rest)" },
@@ -385,7 +402,7 @@
     {
       id:"edrin", name:"Edrin Valebright", race:"Human", cls:"Paladin", level:2,
       core:{ ac:19, speed:"30 ft", init:"+0", prof:"+2", maxHp:20 },
-      abilities:{ str:"+3", con:"+2", dex:"+0", wis:"+1", int:"+0", cha:"+2" },
+      abilities:{ str:"+3", con:"+2", dex:"+0", wis:"+1", int:"+0", cha:"+2" }, /* FIXED */
       skills:["Athletics +5","Persuasion +4","Insight +3"],
       saves:["Wisdom +3","Charisma +4"],
       attacks:["Longsword (melee) — To Hit: d20+5 — Damage: 1d8+3"],
@@ -395,6 +412,8 @@
         "Defense (Fighting Style) — AC +1 (already added)",
         "Spellcasting"
       ],
+      cantrips: [],
+      spellList: ["Bless","Command","Cure Wounds","Protection from Evil and Good","Shield of Faith"],
       spells:{ l1:2, l2:0 },
       resources:[
         { key:"lay_on_hands", name:"Lay on Hands (10 HP pool)", rest:"long", effect:"You have a 10 HP pool per long rest. Spend any amount as an action to heal." },
@@ -416,6 +435,8 @@
         "Song of Rest (d6) — during a short rest, allies heal +1d6 extra",
         "Spellcasting (Lvl 2)"
       ],
+      cantrips: [],
+      spellList: ["Healing Word","Dissonant Whispers","Faerie Fire","Sleep","Tasha’s Hideous Laughter","Detect Magic"],
       spells:{ l1:3, l2:0 },
       resources:[
         { key:"bardic_inspiration_1", name:"Bardic Inspiration (use #1)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
@@ -439,6 +460,8 @@
         "Song of Rest (d6) — during a short rest, allies heal +1d6 extra",
         "Spellcasting (Lvl 2)"
       ],
+      cantrips: [],
+      spellList: ["Healing Word","Dissonant Whispers","Faerie Fire","Sleep","Tasha’s Hideous Laughter","Detect Magic"],
       spells:{ l1:3, l2:0 },
       resources:[
         { key:"bardic_inspiration_1", name:"Bardic Inspiration (use #1)", rest:"long", effect:"Give an ally a d6 to add to an attack/save/check. (3/day)" },
@@ -461,6 +484,8 @@
         "Natural Explorer — Coastal/Forest: ignore difficult terrain and never get lost",
         "Spellcasting (Lvl 2)"
       ],
+      cantrips: [],
+      spellList: ["Hunter’s Mark","Cure Wounds","Goodberry","Fog Cloud","Detect Magic","Snare"],
       spells:{ l1:2, l2:0 },
       resources:[]
     },
@@ -497,6 +522,11 @@
   const notes = el("notes");
   const conds = el("conds");
 
+  const magicBox = el("magicBox");
+  const magicHint = el("magicHint");
+  const cantripsUl = el("cantrips");
+  const spellsUl = el("spells");
+
   const spellBox = el("spellBox");
   const spellHint = el("spellHint");
   const slotsL1 = el("slotsL1");
@@ -507,7 +537,6 @@
   const resourcesEl = el("resources");
 
   let currentPcId = null;
-
   function keyFor(pcId){ return `tracker::${pcId}`; }
 
   function populate(){
@@ -532,6 +561,15 @@
       const li = document.createElement("li");
       li.textContent = t;
       ul.appendChild(li);
+    });
+  }
+
+  function setListEl(ulEl, items){
+    ulEl.innerHTML = "";
+    (items || []).forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      ulEl.appendChild(li);
     });
   }
 
@@ -608,13 +646,11 @@
     const raw = localStorage.getItem(keyFor(currentPcId));
 
     if(!raw){
-      // defaults
       hpCur.value = pc?.core?.maxHp ?? "";
       inv.value = "";
       notes.value = "";
       conds.value = "";
 
-      // clear slots/resources/status
       document.querySelectorAll(".slot input").forEach(cb=>cb.checked=false);
       document.querySelectorAll("[data-resource]").forEach(cb=>cb.checked=false);
 
@@ -630,13 +666,11 @@
       notes.value = st.notes ?? "";
       conds.value = st.conds ?? "";
 
-      // slots
       const slotState = st.slots || {};
       document.querySelectorAll(".slot input").forEach(cb=>{
         cb.checked = !!slotState[cb.dataset.slot];
       });
 
-      // resources
       const resState = st.resources || {};
       document.querySelectorAll("[data-resource]").forEach(cb=>{
         cb.checked = !!resState[cb.dataset.resource];
@@ -645,7 +679,6 @@
       syncSlotVisuals();
       updateHpPill();
     }catch{
-      // ignore
       hpCur.value = pc?.core?.maxHp ?? "";
       updateHpPill();
     }
@@ -676,6 +709,26 @@
     localStorage.setItem(keyFor(currentPcId), JSON.stringify(st));
     syncSlotVisuals();
     updateHpPill();
+  }
+
+  function renderMagic(pc){
+    const hasMagic = (pc.spells && (pc.spells.l1 || pc.spells.l2)) || (pc.spellList && pc.spellList.length) || (pc.cantrips && pc.cantrips.length);
+    if(!hasMagic){
+      magicBox.hidden = true;
+      return;
+    }
+
+    magicBox.hidden = false;
+
+    const bits = [];
+    if(pc.cls?.toLowerCase().includes("cleric")) bits.push("Prepared list shown");
+    if(pc.cls?.toLowerCase().includes("paladin")) bits.push("Prepared list shown");
+    if(pc.cls?.toLowerCase().includes("bard")) bits.push("Known list shown");
+    if(pc.cls?.toLowerCase().includes("ranger")) bits.push("Known list shown");
+    magicHint.textContent = bits.length ? bits.join(" • ") : "";
+
+    setListEl(cantripsUl, pc.cantrips || []);
+    setListEl(spellsUl, pc.spellList || []);
   }
 
   function render(id){
@@ -711,7 +764,8 @@
     setList("attacks", pc.attacks);
     setList("feats", pc.feats);
 
-    // spell slots
+    renderMagic(pc);
+
     if(pc.spells){
       spellBox.hidden = false;
       const l1 = pc.spells.l1 || 0;
@@ -730,7 +784,6 @@
     }
 
     buildResources(pc);
-
     load();
   }
 
@@ -739,7 +792,6 @@
     const pc = PCS.find(p=>p.id===currentPcId);
     if(!pc) return;
 
-    // Uncheck all resources that reset on short rest
     document.querySelectorAll("[data-resource]").forEach(cb=>{
       const rKey = cb.dataset.resource;
       const res = (pc.resources||[]).find(r=>r.key===rKey);
@@ -755,13 +807,9 @@
     const pc = PCS.find(p=>p.id===currentPcId);
     if(!pc) return;
 
-    // Reset ALL resources
     document.querySelectorAll("[data-resource]").forEach(cb=>cb.checked=false);
-
-    // Reset spell slots
     document.querySelectorAll(".slot input").forEach(cb=>cb.checked=false);
 
-    // Optionally restore HP
     const restore = confirm("Long Rest applied.\n\nRestore HP to max?");
     if(restore){
       hpCur.value = pc.core?.maxHp ?? hpCur.value;
@@ -771,7 +819,6 @@
     alert("Long Rest applied:\n- Resources reset\n- Spell slots reset\n- HP " + (restore ? "restored to max" : "unchanged"));
   }
 
-  // ===== events =====
   select.addEventListener("change", () => render(select.value));
   [hpCur, inv, notes, conds].forEach(x => x.addEventListener("input", save));
 
