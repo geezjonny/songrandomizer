@@ -131,7 +131,7 @@
     .slot input{position:absolute; inset:0; opacity:0;}
     .slot.on{background: var(--accent);}
 
-    .resources, .conditions{
+    .resources{
       display:grid;
       grid-template-columns: 1fr;
       gap: 8px;
@@ -276,14 +276,8 @@
           <div class="resources" id="resources"></div>
         </div>
 
-        <div style="margin-top:12px">
-          <div class="label">Status Effects (tap ? to read)</div>
-          <div class="conditions" id="conditions"></div>
-        </div>
-
         <div class="foot">
-          Auto-saves on this device.  
-          (GitHub Pages can’t save to the server without a backend.)
+          Auto-saves on this device.
         </div>
       </div>
     </div>
@@ -291,24 +285,6 @@
 </div>
 
 <script>
-  // Status effects (simplified, correct core effect text)
-  const STATUS = [
-    { key:"blinded", name:"Blinded", effect:"You can’t see. You automatically fail sight checks. Attacks against you have advantage. Your attacks have disadvantage." },
-    { key:"charmed", name:"Charmed", effect:"You can’t attack the charmer, and they have advantage on social checks to interact with you." },
-    { key:"deafened", name:"Deafened", effect:"You can’t hear. You automatically fail hearing checks." },
-    { key:"frightened", name:"Frightened", effect:"Disadvantage on checks and attacks while the source is in sight. You can’t willingly move closer to the source." },
-    { key:"grappled", name:"Grappled", effect:"Speed becomes 0. Ends if the grappler is incapacitated or you’re moved away." },
-    { key:"incapacitated", name:"Incapacitated", effect:"You can’t take actions or reactions." },
-    { key:"invisible", name:"Invisible", effect:"You’re unseen. Attacks against you have disadvantage; your attacks have advantage. You can still be detected by noise/tracks/etc." },
-    { key:"paralyzed", name:"Paralyzed", effect:"Incapacitated and can’t move/speak. Auto-fail STR/DEX saves. Attacks against you have advantage; melee hits are crits." },
-    { key:"petrified", name:"Petrified", effect:"Turned to stone. Incapacitated, can’t move/speak. Auto-fail STR/DEX saves. Resistant to damage. Poison/disease paused." },
-    { key:"poisoned", name:"Poisoned", effect:"Disadvantage on attack rolls and ability checks." },
-    { key:"prone", name:"Prone", effect:"Only crawl unless you stand up (costs half speed). Melee attacks against you have advantage; ranged attacks have disadvantage." },
-    { key:"restrained", name:"Restrained", effect:"Speed 0. Attacks against you have advantage; your attacks have disadvantage. Disadvantage on DEX saves." },
-    { key:"stunned", name:"Stunned", effect:"Incapacitated, can’t move/speak. Auto-fail STR/DEX saves. Attacks against you have advantage." },
-    { key:"unconscious", name:"Unconscious", effect:"Incapacitated, prone, unaware. Drop held items. Auto-fail STR/DEX saves. Attacks against you have advantage; melee hits are crits." },
-  ];
-
   // PARTY DATA (spell slots corrected to standard 5e at level 2)
   // Cleric L2: 3x L1, 0x L2
   // Bard L2:   3x L1, 0x L2
@@ -409,7 +385,7 @@
     {
       id:"edrin", name:"Edrin Valebright", race:"Human", cls:"Paladin", level:2,
       core:{ ac:19, speed:"30 ft", init:"+0", prof:"+2", maxHp:20 },
-      abilities:{ str:"+3", con:"+2", dex:"+0", wis:"+1", int:"+0", cha:"+2" },
+      abilities:{ str:"+3", con:"+2", dex:"+0", wis:"+1, int:"+0", cha:"+2" },
       skills:["Athletics +5","Persuasion +4","Insight +3"],
       saves:["Wisdom +3","Charisma +4"],
       attacks:["Longsword (melee) — To Hit: d20+5 — Damage: 1d8+3"],
@@ -529,7 +505,6 @@
   const lineL2 = el("lineL2");
 
   const resourcesEl = el("resources");
-  const conditionsEl = el("conditions");
 
   let currentPcId = null;
 
@@ -626,36 +601,6 @@
     });
   }
 
-  function buildConditions(){
-    conditionsEl.innerHTML = "";
-    STATUS.forEach(s=>{
-      const row = document.createElement("div");
-      row.className = "checkrow";
-
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.dataset.status = s.key;
-      cb.addEventListener("change", save);
-
-      const text = document.createElement("div");
-      text.innerHTML = `<div class="title">${s.name}</div>
-                        <div class="desc">${s.effect}</div>`;
-
-      const info = document.createElement("button");
-      info.className = "infoBtn";
-      info.type = "button";
-      info.textContent = "?";
-      info.addEventListener("click", ()=>{
-        alert(`${s.name}\n\n${s.effect}`);
-      });
-
-      row.appendChild(cb);
-      row.appendChild(text);
-      row.appendChild(info);
-      conditionsEl.appendChild(row);
-    });
-  }
-
   function load(){
     if(!currentPcId) return;
 
@@ -672,7 +617,6 @@
       // clear slots/resources/status
       document.querySelectorAll(".slot input").forEach(cb=>cb.checked=false);
       document.querySelectorAll("[data-resource]").forEach(cb=>cb.checked=false);
-      document.querySelectorAll("[data-status]").forEach(cb=>cb.checked=false);
 
       syncSlotVisuals();
       updateHpPill();
@@ -698,12 +642,6 @@
         cb.checked = !!resState[cb.dataset.resource];
       });
 
-      // status
-      const statusState = st.status || {};
-      document.querySelectorAll("[data-status]").forEach(cb=>{
-        cb.checked = !!statusState[cb.dataset.status];
-      });
-
       syncSlotVisuals();
       updateHpPill();
     }catch{
@@ -726,19 +664,13 @@
       resState[cb.dataset.resource] = !!cb.checked;
     });
 
-    const statusState = {};
-    document.querySelectorAll("[data-status]").forEach(cb=>{
-      statusState[cb.dataset.status] = !!cb.checked;
-    });
-
     const st = {
       hpCur: hpCur.value,
       inv: inv.value,
       notes: notes.value,
       conds: conds.value,
       slots: slotState,
-      resources: resState,
-      status: statusState
+      resources: resState
     };
 
     localStorage.setItem(keyFor(currentPcId), JSON.stringify(st));
@@ -798,7 +730,6 @@
     }
 
     buildResources(pc);
-    buildConditions();
 
     load();
   }
@@ -815,7 +746,6 @@
       if(res?.rest === "short") cb.checked = false;
     });
 
-    // Song of Rest doesn’t need tracking; spell slots don’t reset on short rest.
     save();
     alert("Short Rest applied:\n- Short-rest resources reset.\n- Spell slots unchanged.");
   }
@@ -836,10 +766,6 @@
     if(restore){
       hpCur.value = pc.core?.maxHp ?? hpCur.value;
     }
-
-    // Optionally clear conditions? (I’d personally NOT auto-clear, but you can.)
-    // If you want auto-clear: uncomment next line
-    // document.querySelectorAll("[data-status]").forEach(cb=>cb.checked=false);
 
     save();
     alert("Long Rest applied:\n- Resources reset\n- Spell slots reset\n- HP " + (restore ? "restored to max" : "unchanged"));
@@ -864,3 +790,4 @@
 </script>
 </body>
 </html>
+::contentReference[oaicite:0]{index=0}
